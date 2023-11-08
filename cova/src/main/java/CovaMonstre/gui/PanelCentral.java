@@ -25,7 +25,7 @@ public class PanelCentral extends JPanel {
     private int modo = 0; // 0-nada , 1-pared, 2-robot
 
     private BufferedImage textureImage;
-    private BufferedImage robotImage, paredImage;
+    private BufferedImage robotImage, paredImage, mounstruoImage, agenteImage, precipicioImage, tesoroImage;
     private int filaGlobal;
     private int columnaGlobal;
 
@@ -37,6 +37,12 @@ public class PanelCentral extends JPanel {
             textureImage = ImageIO.read(getClass().getResource("../imagenes/texturaMarmol1.jpg"));
             robotImage = ImageIO.read(getClass().getResource("../imagenes/roomba.png"));
             paredImage = ImageIO.read(getClass().getResource("../imagenes/ladrillo.jpg"));
+            
+            agenteImage= ImageIO.read(getClass().getResource("../imagenes/agenteFlecha.png"));
+            mounstruoImage = ImageIO.read(getClass().getResource("../imagenes/monstruo.png"));
+            precipicioImage = ImageIO.read(getClass().getResource("../imagenes/precipicio.png"));
+            tesoroImage = ImageIO.read(getClass().getResource("../imagenes/tesoro.png"));
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -86,6 +92,18 @@ public class PanelCentral extends JPanel {
                         System.out.println("Clic Derecho en fila " + fila + ", columna " + columna);
                         tablero[fila][columna] = 0;
                     }
+                } else if (modo==7) {
+                  if (SwingUtilities.isLeftMouseButton(e)) {
+                        tablero[fila][columna] = 7;
+                    } else if (SwingUtilities.isRightMouseButton(e)) {
+                        tablero[fila][columna] = 0;
+                    }
+                } else if (modo==8) {
+                  if (SwingUtilities.isLeftMouseButton(e)) {
+                        tablero[fila][columna] = 8;
+                    } else if (SwingUtilities.isRightMouseButton(e)) {
+                        tablero[fila][columna] = 0;
+                    }
                 }
                 repaint();
             }
@@ -123,7 +141,7 @@ public class PanelCentral extends JPanel {
 
                 if (tablero[fila][columna] == 1) {
                     g.setComposite(opacidad2);
-                    g.drawImage(paredImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                    g.drawImage(mounstruoImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
 
                 } else if (tablero[fila][columna] == 2) {
                     g.setComposite(opacidad2);
@@ -151,6 +169,15 @@ public class PanelCentral extends JPanel {
                     // Restaurar la transformación para evitar que afecte a otras operaciones de
                     // dibujo
                     g2d.setTransform(new AffineTransform());
+                } else if (tablero[fila][columna] == 7) {
+                    g.setComposite(opacidad2);
+                    g.drawImage(precipicioImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                } else if (tablero[fila][columna] == 8) {
+                    g.setComposite(opacidad2);
+                    g.drawImage(tesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                } else if (tablero[fila][columna] == 4) {
+                    g.setComposite(opacidad2);
+                    g.drawImage(agenteImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
                 }
             }
         }

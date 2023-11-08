@@ -137,9 +137,9 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         info2.setForeground(Color.white);
         info2.setBounds(10, 210, 200, 30);
                       
-        //ICONO PARED
+        //ICONO MONSTRUO 
         JLabel paredLabel = new JLabel();
-        paredLabel.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/ladrillo.jpg")),120));
+        paredLabel.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/monstruo.png")),120));
         paredLabel.setBounds(32, 250, 120, 120);
         paredLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -148,18 +148,27 @@ public class PanelControl extends JLayeredPane implements ActionListener {
             }
         });
         
-        //ICONO ROBOT
+        //ICONO PRECIPICIO 
         JLabel robotLabel = new JLabel();
-        robotLabel.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/roomba.png")),120));
+        robotLabel.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/precipicio.png")),120));
         robotLabel.setBounds(32, 400, 120, 120);
         robotLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 System.out.println("Modo robot activado");
-                tableroPanel.setModo(2);     
+                tableroPanel.setModo(7);     
             }
         });
         
-        
+        //ICONO ROBOT
+        JLabel tesoro = new JLabel();
+        tesoro.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/tesoro.png")),120));
+        tesoro.setBounds(32, 500, 120, 120);
+        tesoro.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableroPanel.setModo(8);     
+            }
+        });
+ 
       
         //Boton Start
         JButton calcula = new JButton();
@@ -189,6 +198,7 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         
         add(paredLabel);
         add(robotLabel);
+        add(tesoro);
         
         add(calcula);
         add(stop);

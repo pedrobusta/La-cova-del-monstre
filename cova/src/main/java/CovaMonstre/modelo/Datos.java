@@ -35,6 +35,8 @@ public class Datos {
                 tablero[i][j] = 0;
             }
         }
+        // Posicionamos el agente con flecha
+        tablero[dimension-1][0] = 4;
     }
     
     public int getDimension() {
