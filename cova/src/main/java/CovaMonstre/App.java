@@ -3,6 +3,7 @@ package CovaMonstre;
 import CovaMonstre.gui.Gui;
 import CovaMonstre.controlador.Agente;
 import CovaMonstre.modelo.Datos;
+
 /**
  * Hello world!
  *
@@ -47,6 +48,12 @@ public class App implements Notificar {
                     break;
                 case "STOP":
                     con.notificar("STOP");
+                    break;
+                case "upVelocidad": // velocidad++
+                    con.notificar("upVelocidad");
+                    break;
+                case "downVelocidad": // velocidad--
+                    con.notificar("downVelocidad");
                     break;
                 default:
                     break;

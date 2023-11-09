@@ -1,7 +1,5 @@
 package CovaMonstre.gui;
 
-
-
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -34,24 +32,22 @@ import CovaMonstre.modelo.Datos;
  */
 public class PanelControl extends JLayeredPane implements ActionListener {
 
-  
     private BufferedImage textureImage;
     private JTextField texto;
     private Notificar prog;
     private JPanel panelDibujo;
     private JPanel panelDibujo2;
     private Datos dat;
-        private PanelCentral tableroPanel;
-
+    private PanelCentral tableroPanel;
 
     public PanelControl(Notificar prog, Datos dat, PanelCentral tableroPanel) {
-        
+
         this.prog = prog;
         this.dat = dat;
         this.tableroPanel = tableroPanel;
-        
+
         this.setLayout(new BorderLayout());
-        //fondo del panel
+        // fondo del panel
         try {
             textureImage = ImageIO.read(getClass().getResource("../imagenes/texturaMoqueta.jpg"));
         } catch (IOException ex) {
@@ -76,54 +72,30 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         };
         panelDibujo.setPreferredSize(new Dimension(200, 800));
         panelDibujo.setBounds(0, 0, 170, 800);
-        
-        
 
-        panelDibujo2 = new JPanel() {
-            @Override
-            public void paint(Graphics gr) {
-                AlphaComposite opacidad = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.1f);
-                Rectangle rect = new Rectangle(0, 0, this.getWidth(), this.getHeight());
-                BufferedImage bi = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
-                Graphics2D g = (Graphics2D) bi.getGraphics();
-                Graphics2D g2 = (Graphics2D) bi.getGraphics();
-                g2.setColor(new Color(39, 66, 38));
-                g.setComposite(opacidad);
-                g.setPaint(new TexturePaint(textureImage, rect));
-                g2.fillRect(0, 0, this.getWidth(), this.getHeight());
-                g.fillRect(0, 0, this.getWidth(), this.getHeight());
-                gr.drawImage(bi, 0, 0, this);
-            }
-        };       
-        panelDibujo2.setPreferredSize(new Dimension(200, 800));
-        panelDibujo2.setBounds(170, 0, 200, 800);
-
-        
         ponOpciones();
-
-
         add(panelDibujo, BorderLayout.CENTER);
     }
 
     public void ponOpciones() {
-         
-        //ICONO AJADRES
+
+        // ICONO AJADRES
         ImageIcon titulo = new ImageIcon(getClass().getResource("../imagenes/icon.png"));
         JLabel label = new JLabel(titulo);
         label.setBounds(10, 10, 130, 120);
 
-        //DIMENSION
+        // DIMENSION
         JLabel info = new JLabel("Introduce la dimensión N");
         info.setFont(new Font("Arial", Font.BOLD, 12));
         info.setForeground(Color.white);
         info.setBounds(20, 150, 180, 10);
-        
-        //Cambiar dimension
+
+        // Cambiar dimension
         texto = new JTextField();
         texto.setForeground(Color.gray);
         texto.setBounds(25, 175, 60, 30);
-        
-        JButton cambia = new JButton("Cambia"); 
+
+        JButton cambia = new JButton("Cambia");
         cambia.setFont(new Font("Arial", Font.BOLD, 12));
         cambia.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
         cambia.addActionListener(this);
@@ -131,46 +103,65 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         cambia.setBackground(new Color(126, 100, 78));
         cambia.setForeground(Color.black);
 
-        //Elegir piezas
+        // Elegir piezas
         JLabel info2 = new JLabel("- - - - - - - -");
         info2.setFont(new Font("Arial", Font.BOLD, 12));
         info2.setForeground(Color.white);
         info2.setBounds(10, 210, 200, 30);
-                      
-        //ICONO MONSTRUO 
+
+        // ICONO MONSTRUO
         JLabel paredLabel = new JLabel();
-        paredLabel.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/monstruo.png")),120));
+        paredLabel.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/monstruo.png")), 120));
         paredLabel.setBounds(32, 250, 120, 120);
         paredLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 System.out.println("Modo pared activado");
-                tableroPanel.setModo(1);     
+                tableroPanel.setModo(1);
             }
         });
-        
-        //ICONO PRECIPICIO 
+
+        // ICONO PRECIPICIO
         JLabel robotLabel = new JLabel();
-        robotLabel.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/precipicio.png")),120));
+        robotLabel.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/precipicio.png")), 120));
         robotLabel.setBounds(32, 400, 120, 120);
         robotLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 System.out.println("Modo robot activado");
-                tableroPanel.setModo(7);     
+                tableroPanel.setModo(7);
             }
         });
-        
-        //ICONO ROBOT
+
+        // ICONO ROBOT
         JLabel tesoro = new JLabel();
-        tesoro.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/tesoro.png")),120));
+        tesoro.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/tesoro.png")), 120));
         tesoro.setBounds(32, 500, 120, 120);
         tesoro.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableroPanel.setModo(8);     
+                tableroPanel.setModo(8);
             }
         });
- 
-      
-        //Boton Start
+
+        // Panel Velocidad
+        JLabel labelVelocidad = new JLabel("VELOCIDAD");
+        labelVelocidad.setFont(new Font("Arial", Font.BOLD, 13));
+        labelVelocidad.setForeground(Color.white);
+        labelVelocidad.setBounds(45, 630, 100, 30);
+
+        JButton btnUP = new JButton("+");
+        btnUP.setActionCommand("upVelocidad");
+        btnUP.setBackground(new Color(126, 100, 78));
+        btnUP.setBounds(123, 630, 25, 25);
+        btnUP.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
+        btnUP.addActionListener(this);
+
+        JButton btnDowm = new JButton("-");
+        btnDowm.setActionCommand("downVelocidad");
+        btnDowm.setBackground(new Color(126, 100, 78));
+        btnDowm.setBounds(16, 630, 25, 25);
+        btnDowm.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
+        btnDowm.addActionListener(this);
+
+        // Boton Start
         JButton calcula = new JButton();
         calcula.setActionCommand("Start");
         ImageIcon calc = new ImageIcon(getClass().getResource("../imagenes/ejecutar.png"));
@@ -182,11 +173,11 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         calcula.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
         calcula.addActionListener(this);
 
-        //Boton Stop
+        // Boton Stop
         JButton stop = new JButton("STOP");
         stop.setActionCommand("Stop");
         stop.setBackground(new Color(126, 100, 78));
-        stop.setBounds(30, 650, 120, 70);
+        stop.setBounds(30, 670, 120, 70);
         stop.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
         stop.addActionListener(this);
 
@@ -195,20 +186,22 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         add(info);
         add(texto);
         add(cambia);
-        
+
         add(paredLabel);
         add(robotLabel);
         add(tesoro);
-        
+
+        add(labelVelocidad);
+        add(btnDowm);
+        add(btnUP);
         add(calcula);
         add(stop);
     }
 
-    
     public void actionPerformed(ActionEvent e) {
-        
-        //System.out.println("hosl " + e.getActionCommand());
-      
+
+        // System.out.println("hosl " + e.getActionCommand());
+
         switch (e.getActionCommand()) {
             case "Cambia":
                 prog.notificar("Cambia-" + texto.getText());
@@ -218,6 +211,12 @@ public class PanelControl extends JLayeredPane implements ActionListener {
                 break;
             case "Stop":
                 prog.notificar("STOP");
+                break;
+            case "upVelocidad": // velocidad++
+                prog.notificar("upVelocidad");
+                break;
+            case "downVelocidad": // velocidad--
+                prog.notificar("downVelocidad");
                 break;
             default:
                 break;
@@ -229,6 +228,5 @@ public class PanelControl extends JLayeredPane implements ActionListener {
                 .getScaledInstance(tam, tam, Image.SCALE_SMOOTH));
         return i;
     }
-       
-    
+
 }
