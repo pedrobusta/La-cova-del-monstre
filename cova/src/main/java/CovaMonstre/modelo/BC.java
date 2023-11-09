@@ -9,7 +9,8 @@ public class BC {
         SUR,
         ESTE,
         OESTE,
-        NOMEM,
+        DER,
+        IZQ,
         STOP
     }
 
