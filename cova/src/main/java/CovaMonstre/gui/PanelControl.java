@@ -36,7 +36,7 @@ public class PanelControl extends JLayeredPane implements ActionListener {
     private JTextField texto;
     private Notificar prog;
     private JPanel panelDibujo;
-    private JPanel panelDibujo2;
+   // private JPanel panelDibujo2;
     private Datos dat;
     private PanelCentral tableroPanel;
 
@@ -123,7 +123,7 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         // ICONO PRECIPICIO
         JLabel robotLabel = new JLabel();
         robotLabel.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/precipicio.png")), 120));
-        robotLabel.setBounds(32, 400, 120, 120);
+        robotLabel.setBounds(32, 380, 120, 120);
         robotLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 System.out.println("Modo robot activado");
@@ -131,7 +131,7 @@ public class PanelControl extends JLayeredPane implements ActionListener {
             }
         });
 
-        // ICONO ROBOT
+        // ICONO TESORO
         JLabel tesoro = new JLabel();
         tesoro.setIcon(escalar(new ImageIcon(getClass().getResource("../imagenes/tesoro.png")), 120));
         tesoro.setBounds(32, 500, 120, 120);
@@ -161,6 +161,14 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         btnDowm.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
         btnDowm.addActionListener(this);
 
+        // Boton Stop
+        JButton stop = new JButton("STOP");
+        stop.setActionCommand("Stop");
+        stop.setBackground(new Color(126, 100, 78));
+        stop.setBounds(30, 670, 120, 70);
+        stop.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
+        stop.addActionListener(this);
+
         // Boton Start
         JButton calcula = new JButton();
         calcula.setActionCommand("Start");
@@ -172,14 +180,6 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         calcula.setBounds(30, 750, 120, 70);
         calcula.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
         calcula.addActionListener(this);
-
-        // Boton Stop
-        JButton stop = new JButton("STOP");
-        stop.setActionCommand("Stop");
-        stop.setBackground(new Color(126, 100, 78));
-        stop.setBounds(30, 670, 120, 70);
-        stop.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
-        stop.addActionListener(this);
 
         add(label);
         add(info2);
@@ -194,13 +194,13 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         add(labelVelocidad);
         add(btnDowm);
         add(btnUP);
-        add(calcula);
+
         add(stop);
+        add(calcula);
+        
     }
 
     public void actionPerformed(ActionEvent e) {
-
-        // System.out.println("hosl " + e.getActionCommand());
 
         switch (e.getActionCommand()) {
             case "Cambia":

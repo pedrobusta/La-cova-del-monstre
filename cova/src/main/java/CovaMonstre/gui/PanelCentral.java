@@ -25,7 +25,10 @@ public class PanelCentral extends JPanel {
     private int modo = 0; // 0-nada , 1-pared, 2-robot
 
     private BufferedImage textureImage;
-    private BufferedImage robotImage, paredImage, mounstruoImage, agenteImage, precipicioImage, tesoroImage;
+    private BufferedImage robotImage, paredImage, mounstruoImage, agenteImage, 
+                          precipicioImage, tesoroImage,hedorImage,brisaImage,
+                          hedorBrisaImage, hedorTesoroImage, brisaTesoroImage,
+                          hedorBrisaTesoroImage;
     private int filaGlobal;
     private int columnaGlobal;
 
@@ -42,6 +45,16 @@ public class PanelCentral extends JPanel {
             mounstruoImage = ImageIO.read(getClass().getResource("../imagenes/monstruo.png"));
             precipicioImage = ImageIO.read(getClass().getResource("../imagenes/precipicio.png"));
             tesoroImage = ImageIO.read(getClass().getResource("../imagenes/tesoro.png"));
+            hedorImage = ImageIO.read(getClass().getResource("../imagenes/hedor.png"));
+            brisaImage = ImageIO.read(getClass().getResource("../imagenes/brisa.png"));
+
+            hedorBrisaImage = ImageIO.read(getClass().getResource("../imagenes/hedorBrisa.png"));
+            hedorTesoroImage = ImageIO.read(getClass().getResource("../imagenes/hedorTesoro.png"));
+            brisaTesoroImage = ImageIO.read(getClass().getResource("../imagenes/brisaTesoro.png"));
+            hedorBrisaTesoroImage = ImageIO.read(getClass().getResource("../imagenes/hedorBrisaTesoro.png"));
+
+
+
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -74,36 +87,133 @@ public class PanelCentral extends JPanel {
                 // Calcular la posición de la casilla en la que se hizo clic
                 int fila = e.getY() / (getHeight() / dat.getDimension());
                 int columna = e.getX() / (getWidth() / dat.getDimension());
-                if (modo == 1) { // modo Pared activado
-                    // Imprimir la posición en la consola
-                    if (SwingUtilities.isLeftMouseButton(e)) {
-                        System.out.println("Clic Izquierdo en fila " + fila + ", columna " + columna);
-                        tablero[fila][columna] = 1;
-                    } else if (SwingUtilities.isRightMouseButton(e)) {
-                        System.out.println("Clic Derecho en fila " + fila + ", columna " + columna);
-                        tablero[fila][columna] = 0;
-                    }
-                } else if (modo == 2) {
-                    // Imprimir la posición en la consola
-                    if (SwingUtilities.isLeftMouseButton(e)) {
-                        System.out.println("Clic Izquierdo en fila " + fila + ", columna " + columna);
-                        tablero[fila][columna] = 2;
-                    } else if (SwingUtilities.isRightMouseButton(e)) {
-                        System.out.println("Clic Derecho en fila " + fila + ", columna " + columna);
-                        tablero[fila][columna] = 0;
-                    }
-                } else if (modo==7) {
-                  if (SwingUtilities.isLeftMouseButton(e)) {
-                        tablero[fila][columna] = 7;
-                    } else if (SwingUtilities.isRightMouseButton(e)) {
-                        tablero[fila][columna] = 0;
-                    }
-                } else if (modo==8) {
-                  if (SwingUtilities.isLeftMouseButton(e)) {
-                        tablero[fila][columna] = 8;
-                    } else if (SwingUtilities.isRightMouseButton(e)) {
-                        tablero[fila][columna] = 0;
-                    }
+
+                switch (modo) {
+                    case 1: //monstruo
+                        if (SwingUtilities.isLeftMouseButton(e)) { //clic izq
+                            tablero[fila][columna] = 1;
+                            //Añadir hedor - 9
+                            if(tablero[fila][columna+1] == 10){
+                                tablero[fila][columna+1] = 11;
+                            }else if(tablero[fila][columna+1] == 8){
+                                tablero[fila][columna+1] = 12;
+                            }else if(tablero[fila][columna+1] == 13){
+                                tablero[fila][columna+1] = 14;
+                            }else if(tablero[fila][columna+1] == 0){
+                                tablero[fila][columna+1] = 9;
+                            }
+
+                            if(tablero[fila][columna-1] == 10){
+                                tablero[fila][columna-1] = 11;
+                            }else if(tablero[fila][columna-1] == 8){
+                                tablero[fila][columna-1] = 12;
+                            }else if(tablero[fila][columna-1] == 13){
+                                tablero[fila][columna-1] = 14;
+                            }else if(tablero[fila][columna-1] == 0){
+                                tablero[fila][columna-1] = 9;
+                            }
+
+                            if(tablero[fila+1][columna] == 10){
+                                tablero[fila+1][columna] = 11;
+                            }else if(tablero[fila+1][columna] == 8){
+                                tablero[fila+1][columna] = 12;
+                            }else if(tablero[fila+1][columna] == 13){
+                                tablero[fila+1][columna] = 14;
+                            }else if(tablero[fila+1][columna] == 0){
+                                tablero[fila+1][columna] = 9;
+                            }
+
+                            if(tablero[fila-1][columna] == 10){
+                                tablero[fila-1][columna] = 11;
+                            }else if(tablero[fila-1][columna] == 8){
+                                tablero[fila-1][columna] = 12;
+                            }else if(tablero[fila-1][columna] == 13){
+                                tablero[fila-1][columna] = 14;
+                            }else if(tablero[fila-1][columna] == 0){
+                                tablero[fila-1][columna] = 9;
+                            }
+
+                        } else if (SwingUtilities.isRightMouseButton(e)) { //clic derecho
+                            tablero[fila][columna] = 0;
+                            //quitar hedor
+                            //JTP comprobar ambiente
+                            tablero[fila][columna+1] = 0;
+                            tablero[fila][columna-1] = 0;
+                            tablero[fila+1][columna] = 0;
+                            tablero[fila-1][columna] = 0;
+                        }
+                        break;
+                    case 7: //precicicio
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            tablero[fila][columna] = 7;
+                            //añadir brisas - 10
+                            if(tablero[fila][columna+1] == 9){
+                                tablero[fila][columna+1] = 11;
+                            }else if(tablero[fila][columna+1] == 8){
+                                tablero[fila][columna+1] = 13;
+                            }else if(tablero[fila][columna+1] == 12){
+                                tablero[fila][columna+1] = 14;
+                            }else if(tablero[fila][columna+1] == 0){
+                                tablero[fila][columna+1] = 10;
+                            }
+
+                            if(tablero[fila][columna-1] == 9){
+                                tablero[fila][columna-1] = 11;
+                            }else if(tablero[fila][columna-1] == 8){
+                                tablero[fila][columna-1] = 13;
+                            }else if(tablero[fila][columna-1] == 12){
+                                tablero[fila][columna-1] = 14;
+                            }else if(tablero[fila][columna-1] == 0){
+                                tablero[fila][columna-1] = 10;
+                            }
+
+                            if(tablero[fila+1][columna] == 9){
+                                tablero[fila+1][columna] = 11;
+                            }else if(tablero[fila+1][columna] == 8){
+                                tablero[fila+1][columna] = 13;
+                            }else if(tablero[fila+1][columna] == 12){
+                                tablero[fila+1][columna] = 14;
+                            }else if(tablero[fila+1][columna] == 0){
+                                tablero[fila+1][columna] = 10;
+                            }
+
+                            if(tablero[fila-1][columna] == 9){
+                                tablero[fila-1][columna] = 11;
+                            }else if(tablero[fila-1][columna] == 8){
+                                tablero[fila-1][columna] = 13;
+                            }else if(tablero[fila-1][columna] == 12){
+                                tablero[fila-1][columna] = 14;
+                            }else if(tablero[fila-1][columna] == 0){
+                                tablero[fila-1][columna] = 10;
+                            }
+                        } else if (SwingUtilities.isRightMouseButton(e)) {
+                            tablero[fila][columna] = 0;
+                            //quitar brisas 
+                            //JTP comprobar ambiente
+                            tablero[fila][columna+1] = 0;
+                            tablero[fila][columna-1] = 0;
+                            tablero[fila+1][columna] = 0;
+                            tablero[fila-1][columna] = 0;
+                        }
+                        break;
+                    case 8: //tesoro
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            if(tablero[fila][columna] == 0){
+                                tablero[fila][columna] = 8;
+                            }else if(tablero[fila][columna] == 9){
+                                tablero[fila][columna] = 12;
+                            }else if(tablero[fila][columna] == 10){
+                                tablero[fila][columna] = 13;
+                            }else if(tablero[fila][columna] == 11){
+                                tablero[fila][columna] = 14;
+                            }
+                        } else if (SwingUtilities.isRightMouseButton(e)) {
+                            tablero[fila][columna] = 0;
+                        }
+                        break;
+                    default:
+                        // Manejar otros modos si es necesario
+                        break;
                 }
                 repaint();
             }
@@ -139,11 +249,13 @@ public class PanelCentral extends JPanel {
                 g.setColor(Color.BLACK);
                 g.drawRect(x, y, anchoCelda, altoCelda);
 
+                //dibujar monstruo
                 if (tablero[fila][columna] == 1) {
                     g.setComposite(opacidad2);
                     g.drawImage(mounstruoImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
 
-                } else if (tablero[fila][columna] == 2) {
+                //dibujar agente
+                } else if (tablero[fila][columna] == 4) {
                     g.setComposite(opacidad2);
                     // Crear una transformación para rotar la imagen 90 grados
                     AffineTransform at = new AffineTransform();
@@ -165,26 +277,51 @@ public class PanelCentral extends JPanel {
                     Graphics2D g2d = (Graphics2D) g;
                     g2d.setTransform(at);
                     // Dibujar la imagen rotada
-                    g2d.drawImage(robotImage, x + 5, y + 5, anchoCelda - 10, altoCelda - 10, null);
+                    g2d.drawImage(agenteImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
                     // Restaurar la transformación para evitar que afecte a otras operaciones de
                     // dibujo
                     g2d.setTransform(new AffineTransform());
+
+                //dibujar precipicio
                 } else if (tablero[fila][columna] == 7) {
                     g.setComposite(opacidad2);
                     g.drawImage(precipicioImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                //dibujar Tesoro
                 } else if (tablero[fila][columna] == 8) {
                     g.setComposite(opacidad2);
                     g.drawImage(tesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
-                } else if (tablero[fila][columna] == 4) {
+                //HEDOR 
+                } else if (tablero[fila][columna] == 9) {
                     g.setComposite(opacidad2);
-                    g.drawImage(agenteImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                    g.drawImage(hedorImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                //Brisa
+                } else if (tablero[fila][columna] == 10) {
+                    g.setComposite(opacidad2);
+                    g.drawImage(brisaImage, x + 25, y + 25, anchoCelda - 50, altoCelda - 50, null);
+                
+                //Hedor y Brisa 
+                } else if (tablero[fila][columna] == 11) {
+                    g.setComposite(opacidad2);
+                    g.drawImage(hedorBrisaImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                //HEDOR y Tesoro 
+                } else if (tablero[fila][columna] == 12) {
+                    g.setComposite(opacidad2);
+                    g.drawImage(hedorTesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                //Brisa y Tesoro 
+                } else if (tablero[fila][columna] == 13) {
+                    g.setComposite(opacidad2);
+                    g.drawImage(brisaTesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                //HEDOR y Brisa y Tesoro 
+                } else if (tablero[fila][columna] == 14) {
+                    g.setComposite(opacidad2);
+                    g.drawImage(hedorBrisaTesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
                 }
             }
         }
         gr.drawImage(bi, 0, 0, this);
     }
 
-    // Modo pared o robot
+    
     public void setModo(int num) {
         this.modo = num;
     }

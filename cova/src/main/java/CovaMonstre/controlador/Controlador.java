@@ -25,7 +25,7 @@ public class Controlador implements Notificar {
     }
 
     public void resolver() {
-        // System.out.println("init resolver");
+         System.out.println("init resolver");
 
         Agente agent = new Agente();
         String accion = "NOMEM";
@@ -121,9 +121,11 @@ public class Controlador implements Notificar {
 
     @Override
     public void notificar(String s) {
+                System.out.println("holassss");
 
         switch (s) {
             case "START":
+                System.out.println("hola");
                 resolver();
                 break;
         }

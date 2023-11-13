@@ -40,7 +40,7 @@ public class App implements Notificar {
         } else {
             switch (s) {
                 case "START":
-                    // System.out.println("main recibido START");
+                     //System.out.println("main recibido START");
                     con.notificar("START");
                     break;
                 case "repaint":
