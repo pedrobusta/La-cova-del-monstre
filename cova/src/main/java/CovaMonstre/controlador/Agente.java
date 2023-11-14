@@ -7,7 +7,7 @@ package CovaMonstre.controlador;
  */
 
 import CovaMonstre.Notificar;
-import CovaMonstre.modelo.BC;
+import CovaMonstre.modelo.Conocimientos;
 import CovaMonstre.modelo.Datos;
 
 /**
@@ -15,12 +15,15 @@ import CovaMonstre.modelo.Datos;
  * @author juant
  */
 public class Agente implements Notificar {
-
+    //Atributos
     private Datos dat;
     private Notificar prog;
     private boolean start;
     private int delay;
 
+    private boolean encontradoTesoro = false;
+
+    //Constructor
     public Agente(Datos dat, Notificar not) {
         this.dat = dat;
         this.prog = not;
@@ -28,49 +31,43 @@ public class Agente implements Notificar {
         this.delay = 200;
     }
 
+    //Cerebro
     public void resolver() {
 
-        BC baseConocimiento = new BC();
+        //BC es un tablero de Conocimientos, cada conocimiento es estado de cada casilla
+        Conocimientos[][] BC = new Conocimientos[dat.getDimension()][dat.getDimension()];
         int percep[] = new int[5]; // [Hedor, Brisa, Resplandor, Golpe, Gemido]
 
-        while (start) {
-            // Vamos a poner que hemos calculado la posicion del agente (Preguntar al profe
-            // como se hace!)
-            int agenteX = 0;
-            int agenteY = 0;
+        int agenteX = 0;
+        int agenteY = 0;
 
-            // Obtenemos el array de percepciones
+        while (start && !encontradoTesoro) {
+            //1- Obtenemos el array de percepciones
             percep = obtenerPercepciones(percep, agenteX, agenteY);
 
-            // Enviamos las percepciones a la BC y obtenemos una accion
-            int[] X = baseConocimiento.Percepcion_Caracteristica(percep);
-            String accion = baseConocimiento.getAccion(baseConocimiento.Caracteristica_Accion(X, 0));
+            //2- Actualizar  y inferir BC 
+            informarBC(percep, agenteX, agenteY);
 
-            // Realizar dicho movimiento
+            //3- Preguntar BC que acción debe hacer
+            String accion = preguntarBC(agenteX, agenteY);
+            
+            //4- Realizar dicho movimiento
             switch (accion) {
                 case "NORTE":
-                    // dat.setDir(1);
-                    baseConocimiento.setDir(1); // dirección norte
+                    //
                     prog.notificar("repaint");
                     break;
                 case "SUR":
-                    // dat.setDir(3);
-                    baseConocimiento.setDir(3);
+                    // 
                     prog.notificar("repaint");
                     break;
                 case "ESTE":
-                    // dat.setDir(2);
-                    baseConocimiento.setDir(2);
+                    // 
                     prog.notificar("repaint");
                     break;
                 case "OESTE":
-                    // dat.setDir(4);
-                    baseConocimiento.setDir(4);
+                    // 
                     prog.notificar("repaint");
-                    break;
-                case "DER": // girar 90º a la derecha
-                    break;
-                case "IZQ": // girar 90º a la izquierda
                     break;
                 case "STOP":
                     break;
@@ -79,24 +76,17 @@ public class Agente implements Notificar {
             }
             esperar(delay);
         }
-    }
 
-    public int hayMuro(int x, int y, int offsetX, int offsetY) {
-        int valor = -1;
-        if ((x + offsetX > -1 && y + offsetY > -1)
-                && (x + offsetX < dat.getDimension() && y + offsetY < dat.getDimension())) {
-            valor = dat.getTablero()[x + offsetX][y + offsetY];
-        }
-        return valor;
     }
 
     public int[] obtenerPercepciones(int p[], int agenteX, int agenteY) {
-        // Inicializamos o reiniciamos las percep ya que estamos en una nueva casilla
-        initPercep(p);
-
-        // **** Queda por mirar si el agente ha matado al monstruo ****
-
-
+        //Reset las percepciones Excepto Gemido !!!
+        for (int i = 0; i < p.length-1; i++) {  
+            p[i] = 0;
+        }
+        // Ha matado monstruo y cuantos 
+        p[4] = dat.getNumMonstruoInit() - dat.getNumMonstruoActual();
+        
         // Miramos si el agente se golpea con un muro
         if (hayMuro(agenteX, agenteY, 0, 0) == -1) {
             p[3] = 1;
@@ -104,7 +94,7 @@ public class Agente implements Notificar {
             // hacer un switch de la casilla del agente con los posibles estados y rellenar
             // binariamente las percep
             switch (dat.getTablero()[agenteX][agenteY]) {
-                case 9:
+                case 9: 
                     // hedor
                     p[0] = 1;
                     break;
@@ -118,7 +108,7 @@ public class Agente implements Notificar {
                     p[1] = 1;
                     break;
                 case 12:
-                    // hedor ^ resplandor
+                    // hedor ^ tesoro
                     p[0] = 1;
                     p[2] = 1;
                     break;
@@ -139,11 +129,17 @@ public class Agente implements Notificar {
         return p;
     }
 
-    public void initPercep(int p[]) {
-        for (int i = 0; i < p.length; i++) {
-            p[i] = 0;
-        }
+    public void informarBC(int p[], int agenteX, int agenteY){
+        //TODO
+
     }
+
+    public String preguntarBC(int x, int y ){
+        //TODO
+
+        return "";
+    }
+
 
     public void esperar(int time) {
         try {
@@ -151,6 +147,15 @@ public class Agente implements Notificar {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public int hayMuro(int x, int y, int offsetX, int offsetY) {
+        int valor = -1;
+        if ((x + offsetX > -1 && y + offsetY > -1)
+                && (x + offsetX < dat.getDimension() && y + offsetY < dat.getDimension())) {
+            valor = dat.getTablero()[x + offsetX][y + offsetY];
+        }
+        return valor;
     }
 
     @Override

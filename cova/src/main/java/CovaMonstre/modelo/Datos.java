@@ -16,6 +16,9 @@ public class Datos {
     private int tablero[][];
     private int dir; //direccion del robot para pintar 1-arriba, 2-derecha, 3-abajo, 4-izquierda
 
+    private int numMonstruoInit = 0;     
+    private int numMonstruoActual = 0;
+
     //Constructor
     public Datos() {
         this.dir =1;
@@ -70,6 +73,18 @@ public class Datos {
     
     public void setDir(int dir){
         this.dir = dir;
+    }
+
+    public void setNumMonstruoActual(int num){
+        this.numMonstruoActual = num;
+    }
+
+    public int getNumMonstruoInit(){
+        return this.numMonstruoInit;
+    }
+
+    public int getNumMonstruoActual(){
+        return this.numMonstruoActual;
     }
 }
 
