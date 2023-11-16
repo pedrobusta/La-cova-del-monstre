@@ -40,6 +40,11 @@ public class Agente implements Notificar {
         this.agenteY = 0;
 
         this.BC = new Conocimientos[dat.getDimension()][dat.getDimension()];
+        for (int i = 0; i < dat.getDimension(); i++) {
+            for (int j = 0; j < dat.getDimension(); j++) {
+                BC[i][j] = new Conocimientos();
+            }
+        }
     }
 
     // Cerebro
@@ -59,17 +64,19 @@ public class Agente implements Notificar {
             percep = obtenerPercepciones(percep, agenteX, agenteY);
 
             // 2- Actualizar y inferir BC
-            //informarBC(percep, agenteX, agenteY);
+            informarBC(percep, agenteX, agenteY);
 
             // 3- Preguntar BC que acción debe hacer
             String accion = preguntarBC(agenteX, agenteY);
 
             // 4- Realizar dicho movimiento
             actualizarCasillaActual(agenteX, agenteY);
-            actualizarCasillaSiguiente(agenteX, agenteY, "NORTE");
-
+            actualizarCasillaSiguiente(agenteX, agenteY, accion);
             prog.notificar("repaint");
+
+          
             esperar(delay);
+
         }
 
     }
@@ -122,47 +129,85 @@ public class Agente implements Notificar {
         return p;
     }
 
-    public void informarBC(int p[], int agenteX, int agenteY) {
+    public void informarBC(int p[], int x, int y) {
         // TODO
 
+        //**************** */
+        // PARTE ACTUALIZAR 
+        //*************** */
+
+        // 1- actualizar casilla actual
+        BC[x][y].setOk(true);
+        BC[x][y].setVisitada(true);
+
+        //2 - si no Hedor y no Brisa  => SET las 4 casillas adyacentes a ok
+        if (p[0] == 0 && p[1] == 0) {
+            if (x > 0) {
+                BC[x - 1][y].setOk(true);
+            }
+            if (x < BC.length - 1) {
+                BC[x + 1][y].setOk(true);
+            }
+            if (y > 0) {
+                BC[x][y - 1].setOk(true);
+            }
+            if (y < BC.length - 1) {
+                BC[x][y + 1].setOk(true);
+            }
+        }
+
+        //**************** */
+        // PARTE Inferir 
+        //*************** */
+
+
         // Si no hemos visitado esa casilla generamos creencias
-        if (!(BC[agenteX][agenteY].isVisitada())) {
+        if (!(BC[x][y].isVisitada())) {
             // Generamos creencias sobre posibles precipicios
             if (p[1] == 1) {
-                generarCreenciasBrisa(agenteX, agenteY);
+                generarCreenciasBrisa(x, y);
             }
             // Generamos creencias sobre posibles mounstruos
             if (p[0] == 1) {
-                generarCreenciasHedor(agenteX, agenteY);
+                generarCreenciasHedor(x, y);
             }
         }
 
         // Miramos si con el conocimiento que tenemos podemos inferir algo
         // El agente se encuentra en [agenteX,agenteY] miraremos la disponibilidad
 
-        // [agenteX + 1] es OK?
-        if (casillaOK(agenteX, agenteY, 1, 0)) {
-            BC[agenteX + 1][agenteY].setOk(true);
-        }
+        // // [agenteX + 1] es OK?
+        // if (casillaOK(x, y, 1, 0)) {
+        //     BC[x + 1][y].setOk(true);
+        // }
 
-        // [agenteX -1] es OK?
-        if (casillaOK(agenteX, agenteY, -1, 0)) {
-            BC[agenteX - 1][agenteY].setOk(true);
-        }
+        // // [agenteX -1] es OK?
+        // if (casillaOK(x, y, -1, 0)) {
+        //     BC[x - 1][y].setOk(true);
+        // }
 
-        // [agenteY + 1] es OK?
-        if (casillaOK(agenteX, agenteY, 0, 1)) {
-            BC[agenteX][agenteY + 1].setOk(true);
-        }
+        // // [agenteY + 1] es OK?
+        // if (casillaOK(x, y, 0, 1)) {
+        //     BC[x][y + 1].setOk(true);
+        // }
 
-        // [agenteY - 1] es OK?
-        if (casillaOK(agenteX, agenteY, 0, -1)) {
-            BC[agenteX][agenteY - 1].setOk(true);
-        }
+        // // [agenteY - 1] es OK?
+        // if (casillaOK(x, y, 0, -1)) {
+        //     BC[x][y - 1].setOk(true);
+        // }
     }
 
-    public String preguntarBC(int x, int y) {
-        // TODO
+    public String preguntarBC(int x, int y) {   //x fila , y columna
+        // Prioridad en sentido del reloj
+        if (x > 0 && BC[x - 1][y].isOk() && !BC[x - 1][y].isVisitada()) {
+            return "NORTE";
+        } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && !BC[x][y + 1].isVisitada()) {
+            return "ESTE";
+        } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && !BC[x + 1][y].isVisitada()) {
+            return "SUR";
+        } else if (y > 0 && BC[x][y - 1].isOk() && !BC[x][y - 1].isVisitada()) {
+            return "OESTE";
+        }
 
         return "";
     }
@@ -232,7 +277,7 @@ public class Agente implements Notificar {
                     dat.getTablero()[x][y+1] = 20;
                 };
                 break;
-            case "SUD":
+            case "SUR":
                 this.agenteX++;
                 if (dat.getTablero()[x+1][y] == 0) {
                     dat.getTablero()[x+1][y] = 4;
