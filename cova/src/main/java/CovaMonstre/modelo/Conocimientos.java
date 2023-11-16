@@ -62,5 +62,6 @@ public class Conocimientos {
         this.posiblePrecipicio = bool;
     }
 
+
     
 }

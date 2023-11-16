@@ -16,10 +16,14 @@ import CovaMonstre.modelo.Datos;
  */
 public class Agente implements Notificar {
     // Atributos
+    // Atributos
     private Datos dat;
     private Notificar prog;
     private boolean start;
     private int delay;
+    // BC es un tablero de Conocimientos, cada conocimiento es estado de cada
+    // casilla
+    Conocimientos[][] BC = new Conocimientos[dat.getDimension()][dat.getDimension()];
 
     private boolean encontradoTesoro = false;
     private int agenteX ;
@@ -39,9 +43,14 @@ public class Agente implements Notificar {
     // Cerebro
     public void resolver() {
 
-        // BC es un tablero de Conocimientos, cada conocimiento es estado de cada
-        // casilla
+        //BC es un tablero de Conocimientos, cada conocimiento es estado de cada casilla
         Conocimientos[][] BC = new Conocimientos[dat.getDimension()][dat.getDimension()];
+        // HAY que poner que las casillas principales son OK
+        BC[dat.getDimension() - 1][0].setOk(true);
+        BC[dat.getDimension() - 1][0].setVisitada(true);
+        ;
+        BC[dat.getDimension() - 1][1].setOk(true);
+        BC[dat.getDimension() - 2][0].setOk(true);
         int percep[] = new int[5]; // [Hedor, Brisa, Resplandor, Golpe, Gemido]
 
 
@@ -76,8 +85,6 @@ public class Agente implements Notificar {
         if (hayMuro(agenteX, agenteY, 0, 0) == -1) {
             p[3] = 1;
         } else {
-            // hacer un switch de la casilla del agente con los posibles estados y rellenar
-            // binariamente las percep
             switch (dat.getTablero()[agenteX][agenteY]) {
                 case 15:
                     // hedor
@@ -117,6 +124,40 @@ public class Agente implements Notificar {
     public void informarBC(int p[], int agenteX, int agenteY) {
         // TODO
 
+        // Si no hemos visitado esa casilla generamos creencias
+        if (!(BC[agenteX][agenteY].isVisitada())) {
+            // Generamos creencias sobre posibles precipicios
+            if (p[1] == 1) {
+                generarCreenciasBrisa(agenteX, agenteY);
+            }
+            // Generamos creencias sobre posibles mounstruos
+            if (p[0] == 1) {
+                generarCreenciasHedor(agenteX, agenteY);
+            }
+        }
+
+        // Miramos si con el conocimiento que tenemos podemos inferir algo
+        // El agente se encuentra en [agenteX,agenteY] miraremos la disponibilidad
+
+        // [agenteX + 1] es OK?
+        if (casillaOK(agenteX, agenteY, 1, 0)) {
+            BC[agenteX + 1][agenteY].setOk(true);
+        }
+
+        // [agenteX -1] es OK?
+        if (casillaOK(agenteX, agenteY, -1, 0)) {
+            BC[agenteX - 1][agenteY].setOk(true);
+        }
+
+        // [agenteY + 1] es OK?
+        if (casillaOK(agenteX, agenteY, 0, 1)) {
+            BC[agenteX][agenteY + 1].setOk(true);
+        }
+
+        // [agenteY - 1] es OK?
+        if (casillaOK(agenteX, agenteY, 0, -1)) {
+            BC[agenteX][agenteY - 1].setOk(true);
+        }
     }
 
     public String preguntarBC(int x, int y) {
@@ -232,6 +273,64 @@ public class Agente implements Notificar {
                 break;
             default:
                 break;
+        }
+    }
+    public boolean casillaOK(int agenteX, int agenteY, int offsetX, int offsetY) {
+        boolean ok = true;
+        if (BC[agenteX + offsetX][agenteY + offsetY].posibleMonstruo() ||
+                BC[agenteX + offsetX][agenteY + offsetY].posiblePrecipicio()) {
+            ok = false;
+        }
+        return ok;
+    }
+
+    public void generarCreenciasBrisa(int agenteX, int agenteY) {
+        // Posibles precipicios (hay que mirar si esta dentro del trablero)
+        BC[agenteX][agenteY].setBrisa(true);
+
+        // Posible precipicio en agenteX - 1
+        if ((hayMuro(agenteX, agenteY, -1, 0) != -1) && (!BC[agenteX - 1][agenteY].isVisitada())) {
+            BC[agenteX - 1][agenteY].setPosiblePrecipicio(true);
+        }
+
+        // Posible precipicio en agenteX + 1
+        if ((hayMuro(agenteX, agenteY, 1, 0) != -1) && (!BC[agenteX + 1][agenteY].isVisitada())) {
+            BC[agenteX + 1][agenteY].setPosiblePrecipicio(true);
+        }
+
+        // Posible precipicio en agenteY - 1
+        if ((hayMuro(agenteX, agenteY, 0, -1) != -1) && (!BC[agenteX][agenteY - 1].isVisitada())) {
+            BC[agenteX][agenteY - 1].setPosiblePrecipicio(true);
+        }
+
+        // Posible precipicio en agenteY + 1
+        if ((hayMuro(agenteX, agenteY, 0, 1) != -1) && (!BC[agenteX][agenteY + 1].isVisitada())) {
+            BC[agenteX][agenteY + 1].setPosiblePrecipicio(true);
+        }
+    }
+
+    public void generarCreenciasHedor(int agenteX, int agenteY) {
+        // Posibles monstruos (hay que mirar si esta dentro del trablero)
+        BC[agenteX][agenteY].setHedor(true);
+
+        // Posible monstruo en agenteX - 1
+        if ((hayMuro(agenteX, agenteY, -1, 0) != -1) && (!BC[agenteX - 1][agenteY].isVisitada())) {
+            BC[agenteX - 1][agenteY].setPosibleMonstruo(true);
+        }
+
+        // Posible monstruo en agenteX + 1
+        if ((hayMuro(agenteX, agenteY, 1, 0) != -1) && (!BC[agenteX + 1][agenteY].isVisitada())) {
+            BC[agenteX + 1][agenteY].setPosibleMonstruo(true);
+        }
+
+        // Posible monstruo en agenteY - 1
+        if ((hayMuro(agenteX, agenteY, 0, -1) != -1) && (!BC[agenteX][agenteY - 1].isVisitada())) {
+            BC[agenteX][agenteY - 1].setPosibleMonstruo(true);
+        }
+
+        // Posible monstruo en agenteY + 1
+        if ((hayMuro(agenteX, agenteY, 0, 1) != -1) && (!BC[agenteX][agenteY + 1].isVisitada())) {
+            BC[agenteX][agenteY + 1].setPosibleMonstruo(true);
         }
     }
 
