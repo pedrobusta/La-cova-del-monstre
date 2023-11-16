@@ -23,7 +23,7 @@ public class Agente implements Notificar {
     private int delay;
     // BC es un tablero de Conocimientos, cada conocimiento es estado de cada
     // casilla
-    Conocimientos[][] BC = new Conocimientos[dat.getDimension()][dat.getDimension()];
+    private Conocimientos[][] BC;
 
     private boolean encontradoTesoro = false;
     private int agenteX ;
@@ -38,19 +38,19 @@ public class Agente implements Notificar {
 
         this.agenteX = dat.getDimension()-1;
         this.agenteY = 0;
+
+        this.BC = new Conocimientos[dat.getDimension()][dat.getDimension()];
     }
 
     // Cerebro
     public void resolver() {
 
-        //BC es un tablero de Conocimientos, cada conocimiento es estado de cada casilla
-        Conocimientos[][] BC = new Conocimientos[dat.getDimension()][dat.getDimension()];
         // HAY que poner que las casillas principales son OK
-        BC[dat.getDimension() - 1][0].setOk(true);
-        BC[dat.getDimension() - 1][0].setVisitada(true);
-        ;
-        BC[dat.getDimension() - 1][1].setOk(true);
-        BC[dat.getDimension() - 2][0].setOk(true);
+        // BC[dat.getDimension() - 1][0].setOk(true);
+        // BC[dat.getDimension() - 1][0].setVisitada(true);
+        
+        // BC[dat.getDimension() - 1][1].setOk(true);
+        // BC[dat.getDimension() - 2][0].setOk(true);
         int percep[] = new int[5]; // [Hedor, Brisa, Resplandor, Golpe, Gemido]
 
 
@@ -59,7 +59,7 @@ public class Agente implements Notificar {
             percep = obtenerPercepciones(percep, agenteX, agenteY);
 
             // 2- Actualizar y inferir BC
-            informarBC(percep, agenteX, agenteY);
+            //informarBC(percep, agenteX, agenteY);
 
             // 3- Preguntar BC que acción debe hacer
             String accion = preguntarBC(agenteX, agenteY);
@@ -67,6 +67,7 @@ public class Agente implements Notificar {
             // 4- Realizar dicho movimiento
             actualizarCasillaActual(agenteX, agenteY);
             actualizarCasillaSiguiente(agenteX, agenteY, "NORTE");
+
             prog.notificar("repaint");
             esperar(delay);
         }
@@ -275,6 +276,7 @@ public class Agente implements Notificar {
                 break;
         }
     }
+
     public boolean casillaOK(int agenteX, int agenteY, int offsetX, int offsetY) {
         boolean ok = true;
         if (BC[agenteX + offsetX][agenteY + offsetY].posibleMonstruo() ||
