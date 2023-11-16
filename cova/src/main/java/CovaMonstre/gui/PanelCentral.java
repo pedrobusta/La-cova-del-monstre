@@ -28,7 +28,15 @@ public class PanelCentral extends JPanel {
     private BufferedImage robotImage, paredImage, mounstruoImage, agenteImage, 
                           precipicioImage, tesoroImage,hedorImage,brisaImage,
                           hedorBrisaImage, hedorTesoroImage, brisaTesoroImage,
-                          hedorBrisaTesoroImage;
+                          hedorBrisaTesoroImage,
+                          agenteTesoroImage, 
+                            agenteHedorImage, 
+                            agenteBrisaImage, 
+                            agenteHedorBrisaImage, 
+                            agenteTesoroBrisaImage, 
+                            agenteTesoroHedorImage ,
+                            agenteTesoroHedorBrisaImage ;
+
     private int filaGlobal;
     private int columnaGlobal;
 
@@ -53,8 +61,13 @@ public class PanelCentral extends JPanel {
             brisaTesoroImage = ImageIO.read(getClass().getResource("../imagenes/brisaTesoro.png"));
             hedorBrisaTesoroImage = ImageIO.read(getClass().getResource("../imagenes/hedorBrisaTesoro.png"));
 
-
-
+            agenteTesoroImage = ImageIO.read(getClass().getResource("../imagenes/agenteTesoro.png"));
+            agenteHedorImage = ImageIO.read(getClass().getResource("../imagenes/agenteHedor.png"));
+            agenteBrisaImage = ImageIO.read(getClass().getResource("../imagenes/agenteBrisa.png"));
+            agenteHedorBrisaImage = ImageIO.read(getClass().getResource("../imagenes/agenteHedorBrisa.png"));
+            agenteTesoroBrisaImage = ImageIO.read(getClass().getResource("../imagenes/agenteTesoroBrisa.png"));
+            agenteTesoroHedorImage = ImageIO.read(getClass().getResource("../imagenes/agenteTesoroHedor.png"));
+            agenteTesoroHedorBrisaImage = ImageIO.read(getClass().getResource("../imagenes/agenteTesoroHedorBrisa.png"));
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -282,11 +295,11 @@ public class PanelCentral extends JPanel {
                     // dibujo
                     g2d.setTransform(new AffineTransform());
 
-                //dibujar precipicio
+                //Precipicio
                 } else if (tablero[fila][columna] == 7) {
                     g.setComposite(opacidad2);
                     g.drawImage(precipicioImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
-                //dibujar Tesoro
+                //Tesoro
                 } else if (tablero[fila][columna] == 8) {
                     g.setComposite(opacidad2);
                     g.drawImage(tesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
@@ -298,7 +311,6 @@ public class PanelCentral extends JPanel {
                 } else if (tablero[fila][columna] == 10) {
                     g.setComposite(opacidad2);
                     g.drawImage(brisaImage, x + 25, y + 25, anchoCelda - 50, altoCelda - 50, null);
-                
                 //Hedor y Brisa 
                 } else if (tablero[fila][columna] == 11) {
                     g.setComposite(opacidad2);
@@ -316,6 +328,29 @@ public class PanelCentral extends JPanel {
                     g.setComposite(opacidad2);
                     g.drawImage(hedorBrisaTesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
                 }
+
+
+                //Agente y Tesoro
+                    g.setComposite(opacidad2);
+                    g.drawImage(agenteTesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                //Agente y Hedor
+                    g.setComposite(opacidad2);
+                    g.drawImage(agenteHedorImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                //Agente y Brisa
+                    g.setComposite(opacidad2);
+                    g.drawImage(agenteBrisaImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                //Agente y Hedor y Brisa
+                    g.setComposite(opacidad2);
+                    g.drawImage(agenteHedorBrisaImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                //Agente y Tesoro y Brisa
+                    g.setComposite(opacidad2);
+                    g.drawImage(agenteTesoroBrisaImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                //Agente y Tesoro y Hedor
+                    g.setComposite(opacidad2);
+                    g.drawImage(agenteTesoroHedorImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                //Agente y Tesoro y Hedor y Brisa
+                    g.setComposite(opacidad2);
+                    g.drawImage(agenteTesoroHedorBrisaImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
             }
         }
         gr.drawImage(bi, 0, 0, this);

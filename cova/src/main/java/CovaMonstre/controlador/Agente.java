@@ -15,78 +15,63 @@ import CovaMonstre.modelo.Datos;
  * @author juant
  */
 public class Agente implements Notificar {
-    //Atributos
+    // Atributos
     private Datos dat;
     private Notificar prog;
     private boolean start;
     private int delay;
 
     private boolean encontradoTesoro = false;
+    private int agenteX ;
+    private int agenteY ;
 
-    //Constructor
+    // Constructor
     public Agente(Datos dat, Notificar not) {
         this.dat = dat;
         this.prog = not;
         this.start = true;
         this.delay = 200;
+
+        this.agenteX = dat.getDimension()-1;
+        this.agenteY = 0;
     }
 
-    //Cerebro
+    // Cerebro
     public void resolver() {
 
-        //BC es un tablero de Conocimientos, cada conocimiento es estado de cada casilla
+        // BC es un tablero de Conocimientos, cada conocimiento es estado de cada
+        // casilla
         Conocimientos[][] BC = new Conocimientos[dat.getDimension()][dat.getDimension()];
         int percep[] = new int[5]; // [Hedor, Brisa, Resplandor, Golpe, Gemido]
 
-        int agenteX = 0;
-        int agenteY = 0;
 
         while (start && !encontradoTesoro) {
-            //1- Obtenemos el array de percepciones
+            // 1- Obtenemos el array de percepciones
             percep = obtenerPercepciones(percep, agenteX, agenteY);
 
-            //2- Actualizar  y inferir BC 
+            // 2- Actualizar y inferir BC
             informarBC(percep, agenteX, agenteY);
 
-            //3- Preguntar BC que acción debe hacer
+            // 3- Preguntar BC que acción debe hacer
             String accion = preguntarBC(agenteX, agenteY);
-            
-            //4- Realizar dicho movimiento
-            switch (accion) {
-                case "NORTE":
-                    //
-                    prog.notificar("repaint");
-                    break;
-                case "SUR":
-                    // 
-                    prog.notificar("repaint");
-                    break;
-                case "ESTE":
-                    // 
-                    prog.notificar("repaint");
-                    break;
-                case "OESTE":
-                    // 
-                    prog.notificar("repaint");
-                    break;
-                case "STOP":
-                    break;
-                default:
-                    break;
-            }
+
+            // 4- Realizar dicho movimiento
+            actualizarCasillaActual(agenteX, agenteY);
+            actualizarCasillaSiguiente(agenteX, agenteY, "NORTE");
+            prog.notificar("repaint");
             esperar(delay);
         }
 
     }
 
     public int[] obtenerPercepciones(int p[], int agenteX, int agenteY) {
-        //Reset las percepciones Excepto Gemido !!!
-        for (int i = 0; i < p.length-1; i++) {  
+        // Reset las percepciones Excepto Gemido !!!
+        for (int i = 0; i < p.length - 1; i++) {
             p[i] = 0;
         }
-        // Ha matado monstruo y cuantos 
+        // Ha matado monstruo y cuantos
         p[4] = dat.getNumMonstruoInit() - dat.getNumMonstruoActual();
-        
+
         // Miramos si el agente se golpea con un muro
         if (hayMuro(agenteX, agenteY, 0, 0) == -1) {
             p[3] = 1;
@@ -94,30 +79,30 @@ public class Agente implements Notificar {
             // hacer un switch de la casilla del agente con los posibles estados y rellenar
             // binariamente las percep
             switch (dat.getTablero()[agenteX][agenteY]) {
-                case 9: 
+                case 15:
                     // hedor
                     p[0] = 1;
                     break;
-                case 10:
+                case 16:
                     // brisa
                     p[1] = 1;
                     break;
-                case 11:
+                case 17:
                     // hedor ^ brisa
                     p[0] = 1;
                     p[1] = 1;
                     break;
-                case 12:
+                case 19:
                     // hedor ^ tesoro
                     p[0] = 1;
                     p[2] = 1;
                     break;
-                case 13:
+                case 18:
                     // brisa ^ tesoro
                     p[1] = 1;
                     p[2] = 1;
                     break;
-                case 14:
+                case 20:
                     // hedor ^ brisa ^ tesoro
                     p[0] = 1;
                     p[1] = 1;
@@ -129,17 +114,126 @@ public class Agente implements Notificar {
         return p;
     }
 
-    public void informarBC(int p[], int agenteX, int agenteY){
-        //TODO
+    public void informarBC(int p[], int agenteX, int agenteY) {
+        // TODO
 
     }
 
-    public String preguntarBC(int x, int y ){
-        //TODO
+    public String preguntarBC(int x, int y) {
+        // TODO
 
         return "";
     }
 
+    // Actualizar casilla actual una vez eliminado el agente
+    public void actualizarCasillaActual(int x, int y) {
+        if (dat.getTablero()[x][y] == 4) {
+            dat.getTablero()[x][y] = 0;
+        } else if (dat.getTablero()[x][y] == 6) {
+            dat.getTablero()[x][y] = 0;
+        } else if (dat.getTablero()[x][y] == 15) {
+            dat.getTablero()[x][y] = 9;
+        } else if (dat.getTablero()[x][y] == 16) {
+            dat.getTablero()[x][y] = 10;
+        } else if (dat.getTablero()[x][y] == 17) {
+            dat.getTablero()[x][y] = 11;
+        } else if (dat.getTablero()[x][y] == 18) {
+            dat.getTablero()[x][y] = 13;
+        } else if (dat.getTablero()[x][y] == 19) {
+            dat.getTablero()[x][y] = 12;
+        } else if (dat.getTablero()[x][y] == 20) {
+            dat.getTablero()[x][y] = 14;
+        }
+        ;
+    }
+
+    // Actualizar casilla siguiente una vez agregado el agente
+    public void actualizarCasillaSiguiente(int x, int y, String accion) {
+        switch (accion) {
+            case "NORTE":
+                this.agenteX--;
+                if (dat.getTablero()[x-1][y] == 0) {
+                    dat.getTablero()[x-1][y] = 4;
+                } else if (dat.getTablero()[x-1][y] == 8) {
+                    dat.getTablero()[x-1][y] = 6;
+                } else if (dat.getTablero()[x-1][y] == 9) {
+                    dat.getTablero()[x-1][y] = 15;
+                } else if (dat.getTablero()[x-1][y] == 10) {
+                    dat.getTablero()[x-1][y] = 16;
+                } else if (dat.getTablero()[x-1][y] == 11) {
+                    dat.getTablero()[x-1][y] = 17;
+                } else if (dat.getTablero()[x-1][y] == 13) {
+                    dat.getTablero()[x-1][y] = 18;
+                } else if (dat.getTablero()[x-1][y] == 12) {
+                    dat.getTablero()[x-1][y] = 19;
+                } else if (dat.getTablero()[x-1][y] == 14) {
+                    dat.getTablero()[x-1][y] = 20;
+                };
+                break;
+            case "ESTE":
+                this.agenteY++;
+                if (dat.getTablero()[x][y+1] == 0) {
+                    dat.getTablero()[x][y+1] = 4;
+                } else if (dat.getTablero()[x][y+1] == 8) {
+                    dat.getTablero()[x][y+1] = 6;
+                } else if (dat.getTablero()[x][y+1] == 9) {
+                    dat.getTablero()[x][y+1] = 15;
+                } else if (dat.getTablero()[x][y+1] == 10) {
+                    dat.getTablero()[x][y+1] = 16;
+                } else if (dat.getTablero()[x][y+1] == 11) {
+                    dat.getTablero()[x][y+1] = 17;
+                } else if (dat.getTablero()[x][y+1] == 13) {
+                    dat.getTablero()[x][y+1] = 18;
+                } else if (dat.getTablero()[x][y+1] == 12) {
+                    dat.getTablero()[x][y+1] = 19;
+                } else if (dat.getTablero()[x][y+1] == 14) {
+                    dat.getTablero()[x][y+1] = 20;
+                };
+                break;
+            case "SUD":
+                this.agenteX++;
+                if (dat.getTablero()[x+1][y] == 0) {
+                    dat.getTablero()[x+1][y] = 4;
+                } else if (dat.getTablero()[x+1][y] == 8) {
+                    dat.getTablero()[x+1][y] = 6;
+                } else if (dat.getTablero()[x+1][y] == 9) {
+                    dat.getTablero()[x+1][y] = 15;
+                } else if (dat.getTablero()[x+1][y] == 10) {
+                    dat.getTablero()[x+1][y] = 16;
+                } else if (dat.getTablero()[x+1][y] == 11) {
+                    dat.getTablero()[x+1][y] = 17;
+                } else if (dat.getTablero()[x+1][y] == 13) {
+                    dat.getTablero()[x+1][y] = 18;
+                } else if (dat.getTablero()[x+1][y] == 12) {
+                    dat.getTablero()[x+1][y] = 19;
+                } else if (dat.getTablero()[x+1][y] == 14) {
+                    dat.getTablero()[x+1][y] = 20;
+                };    
+                break;
+            case "OESTE":
+                this.agenteY--;
+                if (dat.getTablero()[x][y - 1] == 0) {
+                    dat.getTablero()[x][y - 1] = 4;
+                } else if (dat.getTablero()[x][y - 1] == 8) {
+                    dat.getTablero()[x][y - 1] = 6;
+                } else if (dat.getTablero()[x][y - 1] == 9) {
+                    dat.getTablero()[x][y - 1] = 15;
+                } else if (dat.getTablero()[x][y - 1] == 10) {
+                    dat.getTablero()[x][y - 1] = 16;
+                } else if (dat.getTablero()[x][y - 1] == 11) {
+                    dat.getTablero()[x][y - 1] = 17;
+                } else if (dat.getTablero()[x][y - 1] == 13) {
+                    dat.getTablero()[x][y - 1] = 18;
+                } else if (dat.getTablero()[x][y - 1] == 12) {
+                    dat.getTablero()[x][y - 1] = 19;
+                } else if (dat.getTablero()[x][y - 1] == 14) {
+                    dat.getTablero()[x][y - 1] = 20;
+                };
+                break;
+            default:
+                break;
+        }
+    }
 
     public void esperar(int time) {
         try {
