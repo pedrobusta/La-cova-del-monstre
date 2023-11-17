@@ -8,6 +8,9 @@ public class Conocimientos {
     private boolean brisa = false;
     private boolean posibleMonstruo = false;
     private boolean posiblePrecipicio = false;
+    private boolean imposibleMonstruo = false;
+    private boolean imposiblePrecipicio = false;
+
     
     //Constructor
     public Conocimientos(){
@@ -62,6 +65,18 @@ public class Conocimientos {
         this.posiblePrecipicio = bool;
     }
 
+    public boolean imposibleMonstruo(){
+        return this.imposibleMonstruo;
+    }
+    public boolean imposiblePrecipicio(){
+        return this.imposiblePrecipicio;
+    }
 
-    
+    public void setImposibleMonstruo(boolean bool) {
+        this.imposibleMonstruo = bool;
+    }
+
+    public void setImposiblePrecipicio(boolean bool) {
+        this.imposiblePrecipicio = bool;
+    }
 }

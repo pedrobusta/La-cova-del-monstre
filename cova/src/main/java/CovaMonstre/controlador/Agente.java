@@ -1,5 +1,7 @@
 package CovaMonstre.controlador;
 
+import java.util.ArrayList;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -14,8 +16,8 @@ import CovaMonstre.modelo.Datos;
  *
  * @author juant
  */
+
 public class Agente implements Notificar {
-    // Atributos
     // Atributos
     private Datos dat;
     private Notificar prog;
@@ -26,8 +28,10 @@ public class Agente implements Notificar {
     private Conocimientos[][] BC;
 
     private boolean encontradoTesoro = false;
-    private int agenteX ;
-    private int agenteY ;
+    private int agenteX;
+    private int agenteY;
+
+    private ArrayList<String> camino = new ArrayList<>(); // conjutos de acciones realizado
 
     // Constructor
     public Agente(Datos dat, Notificar not) {
@@ -36,7 +40,7 @@ public class Agente implements Notificar {
         this.start = true;
         this.delay = 200;
 
-        this.agenteX = dat.getDimension()-1;
+        this.agenteX = dat.getDimension() - 1;
         this.agenteY = 0;
 
         this.BC = new Conocimientos[dat.getDimension()][dat.getDimension()];
@@ -53,13 +57,13 @@ public class Agente implements Notificar {
         // HAY que poner que las casillas principales son OK
         // BC[dat.getDimension() - 1][0].setOk(true);
         // BC[dat.getDimension() - 1][0].setVisitada(true);
-        
+
         // BC[dat.getDimension() - 1][1].setOk(true);
         // BC[dat.getDimension() - 2][0].setOk(true);
         int percep[] = new int[5]; // [Hedor, Brisa, Resplandor, Golpe, Gemido]
 
-
         while (start && !encontradoTesoro) {
+            System.out.println(encontradoTesoro);
             // 1- Obtenemos el array de percepciones
             percep = obtenerPercepciones(percep, agenteX, agenteY);
 
@@ -73,15 +77,24 @@ public class Agente implements Notificar {
             actualizarCasillaActual(agenteX, agenteY);
             actualizarCasillaSiguiente(agenteX, agenteY, accion);
             prog.notificar("repaint");
-
-          
             esperar(delay);
-
         }
+        // si ya encontradoTesoro hay que volver
+        if (encontradoTesoro) {
+            for (int i = camino.size(); i > 0; i--) {
+                String accion = camino.get(i);
+                actualizarCasillaActual(agenteX, agenteY);
+                actualizarCasillaSiguiente(agenteX, agenteY, accion);
+                prog.notificar("repaint");
+                esperar(delay);
 
+                camino.remove(i);
+            }
+        }
     }
 
     public int[] obtenerPercepciones(int p[], int agenteX, int agenteY) {
+        System.out.println("percep -> " + dat.getTablero()[agenteX][agenteY]);
         // Reset las percepciones Excepto Gemido !!!
         for (int i = 0; i < p.length - 1; i++) {
             p[i] = 0;
@@ -94,6 +107,9 @@ public class Agente implements Notificar {
             p[3] = 1;
         } else {
             switch (dat.getTablero()[agenteX][agenteY]) {
+                case 6:
+                    // Tesoro
+                    p[2] = 1;
                 case 15:
                     // hedor
                     p[0] = 1;
@@ -132,72 +148,135 @@ public class Agente implements Notificar {
     public void informarBC(int p[], int x, int y) {
         // TODO
 
-        //**************** */
-        // PARTE ACTUALIZAR 
-        //*************** */
+        // **************** */
+        // PARTE ACTUALIZAR
+        // *************** */
 
         // 1- actualizar casilla actual
         BC[x][y].setOk(true);
-        BC[x][y].setVisitada(true);
 
-        //2 - si no Hedor y no Brisa  => SET las 4 casillas adyacentes a ok
-        if (p[0] == 0 && p[1] == 0) {
-            if (x > 0) {
-                BC[x - 1][y].setOk(true);
-            }
-            if (x < BC.length - 1) {
-                BC[x + 1][y].setOk(true);
-            }
-            if (y > 0) {
-                BC[x][y - 1].setOk(true);
-            }
-            if (y < BC.length - 1) {
-                BC[x][y + 1].setOk(true);
-            }
-        }
-
-        //**************** */
-        // PARTE Inferir 
-        //*************** */
-
+        
 
         // Si no hemos visitado esa casilla generamos creencias
         if (!(BC[x][y].isVisitada())) {
-            // Generamos creencias sobre posibles precipicios
-            if (p[1] == 1) {
-                generarCreenciasBrisa(x, y);
-            }
-            // Generamos creencias sobre posibles mounstruos
-            if (p[0] == 1) {
-                generarCreenciasHedor(x, y);
+            // Si hay resplandor => set tesoro encontrado
+            if (p[2] == 1) {
+                System.out.println("tesoro encontrado");
+                this.encontradoTesoro = true;
+            } else {
+                // Si tiene hedor => set las 4 casillas adyacente a possibles monstruo
+                if (p[0] == 1) {
+                    generarCreenciasHedor(x, y);
+                }
+                // Si tiene brisa => set las 4 casillas adyacentes a possibles precipicio
+                if (p[1] == 1) {
+                    generarCreenciasBrisa(x, y);
+                }
+
+                // **************** */
+                // PARTE Inferir
+                // *************** */
+                // CASO 0: NO HAY NADA  - si no Hedor y no Brisa => SET las 4 casillas adyacentes a ok
+                if (p[0] == 0 && p[1] == 0) {
+                    if (x > 0) {
+                        BC[x - 1][y].setOk(true);
+                    }
+                    if (x < BC.length - 1) {
+                        BC[x + 1][y].setOk(true);
+                    }
+                    if (y > 0) {
+                        BC[x][y - 1].setOk(true);
+                    }
+                    if (y < BC.length - 1) {
+                        BC[x][y + 1].setOk(true);
+                    }
+                
+                } 
+
+
+                // CASO 1 : NO HAY NADA PERO INFERIR LAS ADYACENTES
+                // Si no hay hedor y no hay brisa en la casilla actual
+                if (p[0] != 1 && p[1] != 1) {
+                    
+                    // Arriba es posible monstruo o posibles precipicio => Contradicción
+                    if ((x > 0) && (BC[x - 1][y].posibleMonstruo() || BC[x - 1][y].posiblePrecipicio())) {
+                        BC[x - 1][y].setOk(true);
+                    }
+                    // Abajo es posible monstruo o posibles precipicio => Contradicción
+                    if ((x < BC.length - 1) && (BC[x + 1][y].posibleMonstruo() || BC[x + 1][y].posiblePrecipicio())) {
+                        BC[x + 1][y].setOk(true);
+                    }
+                    // Izquierda es posible monstruo o posibles precipicio => Contradicción
+                    if ((y > 0)  && (BC[x][y - 1].posibleMonstruo() || BC[x][y - 1].posiblePrecipicio())) {
+                        BC[x][y - 1].setOk(true);
+                    }
+                    // Derecha es posible monstruo o posibles precipicio => Contradicción
+                    if ((y < BC.length - 1)  && (BC[x][y + 1].posibleMonstruo() || BC[x][y + 1].posiblePrecipicio())) {
+                        BC[x][y + 1].setOk(true);
+                    }
+
+                
+                //CASO 2:  Hay brisa y NO hedor => no puede haber monstruos en las 4 adyacentes
+                } else if (p[0] != 1 && p[1] == 1) {
+                    // Arriba es posible monstruo => Contradicción
+                    if (x > 0 && BC[x - 1][y].posibleMonstruo()) {
+                        BC[x - 1][y].setImposibleMonstruo(true);
+                    }
+                    // Abajo es posible monstruo => Contradicción
+                    if (x < BC.length - 1 && BC[x + 1][y].posibleMonstruo()) {
+                        BC[x + 1][y].setImposibleMonstruo(true);
+                    }
+                    // Izquierda es posible monstruo => Contradicción
+                    if (y > 0  && BC[x][y - 1].posibleMonstruo()) {
+                        BC[x][y - 1].setImposibleMonstruo(true);
+                    }
+                    // Derecha es posible monstruo => Contradicción
+                    if (y < BC.length - 1  && BC[x][y + 1].posibleMonstruo()) {
+                        BC[x][y + 1].setImposibleMonstruo(true);
+                    }
+                
+                //CASO 3:  si hay hedor y no brisa => no puede haber precicpicios en las 4 adyacentes
+                } else if (p[0] == 1 && p[1] != 1) {
+                    // Arriba es posible precipicio => Contradicción
+                    if (x > 0 && BC[x - 1][y].posiblePrecipicio()) {
+                        BC[x - 1][y].setImposiblePrecipicio(true);
+                    }
+                    // Abajo es posible precipicio => Contradicción
+                    if (x < BC.length - 1 && BC[x + 1][y].posiblePrecipicio()) {
+                        BC[x + 1][y].setImposiblePrecipicio(true);
+                    }
+                    // Izquierda es posible precipicio => Contradicción
+                    if (y > 0  && BC[x][y - 1].posiblePrecipicio()) {
+                        BC[x][y - 1].setImposiblePrecipicio(true);
+                    }
+                    // Derecha es posible precipicio => Contradicción
+                    if (y < BC.length - 1  && BC[x][y + 1].posiblePrecipicio()) {
+                        BC[x][y + 1].setImposiblePrecipicio(true);
+                    }
+                }
+
+                
+                //CASO 4: Cuando una casilla es imposible Monstruo y imposible precipicio
+                if(x >0 ){
+                    casillaOK(x - 1, y);
+                }
+                if(x < BC.length -1){
+                    casillaOK(x + 1, y);
+                }
+                
+                if(y < BC.length -1){
+                    casillaOK(x, y + 1);
+                }
+                if(y > 0){
+                    casillaOK(x, y - 1);
+                }
             }
         }
 
-        // Miramos si con el conocimiento que tenemos podemos inferir algo
-        // El agente se encuentra en [agenteX,agenteY] miraremos la disponibilidad
-
-        // // [agenteX + 1] es OK?
-        // if (casillaOK(x, y, 1, 0)) {
-        //     BC[x + 1][y].setOk(true);
-        // }
-
-        // // [agenteX -1] es OK?
-        // if (casillaOK(x, y, -1, 0)) {
-        //     BC[x - 1][y].setOk(true);
-        // }
-
-        // // [agenteY + 1] es OK?
-        // if (casillaOK(x, y, 0, 1)) {
-        //     BC[x][y + 1].setOk(true);
-        // }
-
-        // // [agenteY - 1] es OK?
-        // if (casillaOK(x, y, 0, -1)) {
-        //     BC[x][y - 1].setOk(true);
-        // }
+        BC[x][y].setVisitada(true);
     }
 
-    public String preguntarBC(int x, int y) {   //x fila , y columna
+    public String preguntarBC(int x, int y) { // x fila , y columna
         // Prioridad en sentido del reloj
         if (x > 0 && BC[x - 1][y].isOk() && !BC[x - 1][y].isVisitada()) {
             return "NORTE";
@@ -207,8 +286,8 @@ public class Agente implements Notificar {
             return "SUR";
         } else if (y > 0 && BC[x][y - 1].isOk() && !BC[x][y - 1].isVisitada()) {
             return "OESTE";
-        }
-
+        } 
+        System.out.println("HOLA NO HE HECHO ACCION!");
         return "";
     }
 
@@ -239,66 +318,81 @@ public class Agente implements Notificar {
         switch (accion) {
             case "NORTE":
                 this.agenteX--;
-                if (dat.getTablero()[x-1][y] == 0) {
-                    dat.getTablero()[x-1][y] = 4;
-                } else if (dat.getTablero()[x-1][y] == 8) {
-                    dat.getTablero()[x-1][y] = 6;
-                } else if (dat.getTablero()[x-1][y] == 9) {
-                    dat.getTablero()[x-1][y] = 15;
-                } else if (dat.getTablero()[x-1][y] == 10) {
-                    dat.getTablero()[x-1][y] = 16;
-                } else if (dat.getTablero()[x-1][y] == 11) {
-                    dat.getTablero()[x-1][y] = 17;
-                } else if (dat.getTablero()[x-1][y] == 13) {
-                    dat.getTablero()[x-1][y] = 18;
-                } else if (dat.getTablero()[x-1][y] == 12) {
-                    dat.getTablero()[x-1][y] = 19;
-                } else if (dat.getTablero()[x-1][y] == 14) {
-                    dat.getTablero()[x-1][y] = 20;
-                };
+                if (!encontradoTesoro) {
+                    this.camino.add("SUR"); // añadir accion inversa
+                }
+                if (dat.getTablero()[x - 1][y] == 0) {
+                    dat.getTablero()[x - 1][y] = 4;
+                } else if (dat.getTablero()[x - 1][y] == 8) {
+                    dat.getTablero()[x - 1][y] = 6;
+                } else if (dat.getTablero()[x - 1][y] == 9) {
+                    dat.getTablero()[x - 1][y] = 15;
+                } else if (dat.getTablero()[x - 1][y] == 10) {
+                    dat.getTablero()[x - 1][y] = 16;
+                } else if (dat.getTablero()[x - 1][y] == 11) {
+                    dat.getTablero()[x - 1][y] = 17;
+                } else if (dat.getTablero()[x - 1][y] == 13) {
+                    dat.getTablero()[x - 1][y] = 18;
+                } else if (dat.getTablero()[x - 1][y] == 12) {
+                    dat.getTablero()[x - 1][y] = 19;
+                } else if (dat.getTablero()[x - 1][y] == 14) {
+                    dat.getTablero()[x - 1][y] = 20;
+                }
+                ;
                 break;
             case "ESTE":
                 this.agenteY++;
-                if (dat.getTablero()[x][y+1] == 0) {
-                    dat.getTablero()[x][y+1] = 4;
-                } else if (dat.getTablero()[x][y+1] == 8) {
-                    dat.getTablero()[x][y+1] = 6;
-                } else if (dat.getTablero()[x][y+1] == 9) {
-                    dat.getTablero()[x][y+1] = 15;
-                } else if (dat.getTablero()[x][y+1] == 10) {
-                    dat.getTablero()[x][y+1] = 16;
-                } else if (dat.getTablero()[x][y+1] == 11) {
-                    dat.getTablero()[x][y+1] = 17;
-                } else if (dat.getTablero()[x][y+1] == 13) {
-                    dat.getTablero()[x][y+1] = 18;
-                } else if (dat.getTablero()[x][y+1] == 12) {
-                    dat.getTablero()[x][y+1] = 19;
-                } else if (dat.getTablero()[x][y+1] == 14) {
-                    dat.getTablero()[x][y+1] = 20;
-                };
+                if (!encontradoTesoro) {
+                    this.camino.add("OESTE"); // añadir accion inversa
+                }
+                if (dat.getTablero()[x][y + 1] == 0) {
+                    dat.getTablero()[x][y + 1] = 4;
+                } else if (dat.getTablero()[x][y + 1] == 8) {
+                    dat.getTablero()[x][y + 1] = 6;
+                } else if (dat.getTablero()[x][y + 1] == 9) {
+                    dat.getTablero()[x][y + 1] = 15;
+                } else if (dat.getTablero()[x][y + 1] == 10) {
+                    dat.getTablero()[x][y + 1] = 16;
+                } else if (dat.getTablero()[x][y + 1] == 11) {
+                    dat.getTablero()[x][y + 1] = 17;
+                } else if (dat.getTablero()[x][y + 1] == 13) {
+                    dat.getTablero()[x][y + 1] = 18;
+                } else if (dat.getTablero()[x][y + 1] == 12) {
+                    dat.getTablero()[x][y + 1] = 19;
+                } else if (dat.getTablero()[x][y + 1] == 14) {
+                    dat.getTablero()[x][y + 1] = 20;
+                }
+                ;
                 break;
             case "SUR":
                 this.agenteX++;
-                if (dat.getTablero()[x+1][y] == 0) {
-                    dat.getTablero()[x+1][y] = 4;
-                } else if (dat.getTablero()[x+1][y] == 8) {
-                    dat.getTablero()[x+1][y] = 6;
-                } else if (dat.getTablero()[x+1][y] == 9) {
-                    dat.getTablero()[x+1][y] = 15;
-                } else if (dat.getTablero()[x+1][y] == 10) {
-                    dat.getTablero()[x+1][y] = 16;
-                } else if (dat.getTablero()[x+1][y] == 11) {
-                    dat.getTablero()[x+1][y] = 17;
-                } else if (dat.getTablero()[x+1][y] == 13) {
-                    dat.getTablero()[x+1][y] = 18;
-                } else if (dat.getTablero()[x+1][y] == 12) {
-                    dat.getTablero()[x+1][y] = 19;
-                } else if (dat.getTablero()[x+1][y] == 14) {
-                    dat.getTablero()[x+1][y] = 20;
-                };    
+                if (!encontradoTesoro) {
+                    this.camino.add("NORTE"); // añadir accion inversa
+                }
+                if (dat.getTablero()[x + 1][y] == 0) {
+                    dat.getTablero()[x + 1][y] = 4;
+                } else if (dat.getTablero()[x + 1][y] == 8) {
+                    dat.getTablero()[x + 1][y] = 6;
+                } else if (dat.getTablero()[x + 1][y] == 9) {
+                    dat.getTablero()[x + 1][y] = 15;
+                } else if (dat.getTablero()[x + 1][y] == 10) {
+                    dat.getTablero()[x + 1][y] = 16;
+                } else if (dat.getTablero()[x + 1][y] == 11) {
+                    dat.getTablero()[x + 1][y] = 17;
+                } else if (dat.getTablero()[x + 1][y] == 13) {
+                    dat.getTablero()[x + 1][y] = 18;
+                } else if (dat.getTablero()[x + 1][y] == 12) {
+                    dat.getTablero()[x + 1][y] = 19;
+                } else if (dat.getTablero()[x + 1][y] == 14) {
+                    dat.getTablero()[x + 1][y] = 20;
+                }
+                ;
                 break;
             case "OESTE":
                 this.agenteY--;
+                if (!encontradoTesoro) {
+                    this.camino.add("ESTE"); // añadir accion inversa
+                }
                 if (dat.getTablero()[x][y - 1] == 0) {
                     dat.getTablero()[x][y - 1] = 4;
                 } else if (dat.getTablero()[x][y - 1] == 8) {
@@ -315,20 +409,20 @@ public class Agente implements Notificar {
                     dat.getTablero()[x][y - 1] = 19;
                 } else if (dat.getTablero()[x][y - 1] == 14) {
                     dat.getTablero()[x][y - 1] = 20;
-                };
+                }
+                ;
                 break;
             default:
                 break;
         }
     }
 
-    public boolean casillaOK(int agenteX, int agenteY, int offsetX, int offsetY) {
-        boolean ok = true;
-        if (BC[agenteX + offsetX][agenteY + offsetY].posibleMonstruo() ||
-                BC[agenteX + offsetX][agenteY + offsetY].posiblePrecipicio()) {
-            ok = false;
+    public void casillaOK(int x, int y) {
+
+        if (BC[x][y].imposiblePrecipicio() ||
+                BC[x][y].imposibleMonstruo()) {
+            BC[x][y].setOk(true);
         }
-        return ok;
     }
 
     public void generarCreenciasBrisa(int agenteX, int agenteY) {
@@ -360,22 +454,22 @@ public class Agente implements Notificar {
         // Posibles monstruos (hay que mirar si esta dentro del trablero)
         BC[agenteX][agenteY].setHedor(true);
 
-        // Posible monstruo en agenteX - 1
+        // arriba Posible monstruo en agenteX - 1
         if ((hayMuro(agenteX, agenteY, -1, 0) != -1) && (!BC[agenteX - 1][agenteY].isVisitada())) {
             BC[agenteX - 1][agenteY].setPosibleMonstruo(true);
         }
 
-        // Posible monstruo en agenteX + 1
+        // ABAJO Posible monstruo en agenteX + 1
         if ((hayMuro(agenteX, agenteY, 1, 0) != -1) && (!BC[agenteX + 1][agenteY].isVisitada())) {
             BC[agenteX + 1][agenteY].setPosibleMonstruo(true);
         }
 
-        // Posible monstruo en agenteY - 1
+        // izq Posible monstruo en agenteY - 1
         if ((hayMuro(agenteX, agenteY, 0, -1) != -1) && (!BC[agenteX][agenteY - 1].isVisitada())) {
             BC[agenteX][agenteY - 1].setPosibleMonstruo(true);
         }
 
-        // Posible monstruo en agenteY + 1
+        // DERECHA posible monstruo en agenteY + 1
         if ((hayMuro(agenteX, agenteY, 0, 1) != -1) && (!BC[agenteX][agenteY + 1].isVisitada())) {
             BC[agenteX][agenteY + 1].setPosibleMonstruo(true);
         }
