@@ -320,11 +320,11 @@ public class Agente implements Notificar {
         } else if (dat.getTablero()[x][y] == 17) {
             dat.getTablero()[x][y] = 11;
         } else if (dat.getTablero()[x][y] == 18) {
-            dat.getTablero()[x][y] = 13;
+            dat.getTablero()[x][y] = 10;
         } else if (dat.getTablero()[x][y] == 19) {
-            dat.getTablero()[x][y] = 12;
+            dat.getTablero()[x][y] = 9;
         } else if (dat.getTablero()[x][y] == 20) {
-            dat.getTablero()[x][y] = 14;
+            dat.getTablero()[x][y] = 11;
         }
         ;
     }
