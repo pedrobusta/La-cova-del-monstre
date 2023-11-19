@@ -69,14 +69,17 @@ public class Agente implements Notificar {
             System.out.println("ACCION: "+accion);
 
             // 4- Realizar dicho movimiento
-            actualizarCasillaActual(agenteX, agenteY);
-            actualizarCasillaSiguiente(agenteX, agenteY, accion);
-            prog.notificar("repaint");
-            esperar(delay);
+            if (accion != " ") {
+                actualizarCasillaActual(agenteX, agenteY);
+                actualizarCasillaSiguiente(agenteX, agenteY, accion);
+                prog.notificar("repaint");
+                esperar(delay);
+            }
+
         }
         // si ya encontradoTesoro hay que volver
         if (encontradoTesoro) {
-            for (int i = camino.size(); i > 0; i--) {
+            for (int i = camino.size() - 1; i >= 0; i--) {
                 String accion = camino.get(i);
                 actualizarCasillaActual(agenteX, agenteY);
                 actualizarCasillaSiguiente(agenteX, agenteY, accion);
@@ -89,7 +92,6 @@ public class Agente implements Notificar {
     }
 
     public int[] obtenerPercepciones(int p[], int agenteX, int agenteY) {
-        System.out.println("Valor tablero -> " + dat.getTablero()[agenteX][agenteY]);
         // Reset las percepciones Excepto Gemido !!!
         for (int i = 0; i < p.length - 1; i++) {
             p[i] = 0;
@@ -141,8 +143,6 @@ public class Agente implements Notificar {
     }
 
     public void informarBC(int p[], int x, int y) {
-        // TODO
-
         // **************** */
         // PARTE ACTUALIZAR
         // *************** */
@@ -150,13 +150,10 @@ public class Agente implements Notificar {
         // 1- actualizar casilla actual
         BC[x][y].setOk(true);
 
-        
-
-        // Si no hemos visitado esa casilla generamos creencias
+        // 2- Si no hemos visitado esa casilla generamos creencias
         if (!(BC[x][y].isVisitada())) {
             // Si hay resplandor => set tesoro encontrado
             if (p[2] == 1) {
-                System.out.println("tesoro encontrado");
                 this.encontradoTesoro = true;
             } else {
                 // Si tiene hedor => set las 4 casillas adyacente a possibles monstruo
@@ -168,10 +165,8 @@ public class Agente implements Notificar {
                     generarCreenciasBrisa(x, y);
                 }
 
-                // **************** */
-                // PARTE Inferir
-                // *************** */
-                // CASO 0: NO HAY NADA  - si no Hedor y no Brisa => SET las 4 casillas adyacentes a ok
+                // CASO 0: NO HAY NADA - si no Hedor y no Brisa => SET las 4 casillas adyacentes
+                // a ok
                 if (p[0] == 0 && p[1] == 0) {
                     if (x > 0) {
                         BC[x - 1][y].setOk(true);
@@ -185,14 +180,17 @@ public class Agente implements Notificar {
                     if (y < BC.length - 1) {
                         BC[x][y + 1].setOk(true);
                     }
-                
-                } 
 
+                }
+
+                // **************** */
+                // PARTE Inferir
+                // *************** */
 
                 // CASO 1 : NO HAY NADA PERO INFERIR LAS ADYACENTES
                 // Si no hay hedor y no hay brisa en la casilla actual
                 if (p[0] != 1 && p[1] != 1) {
-                    
+
                     // Arriba es posible monstruo o posibles precipicio => Contradicción
                     if ((x > 0) && (BC[x - 1][y].posibleMonstruo() && BC[x - 1][y].posiblePrecipicio())) {
                         BC[x - 1][y].setOk(true);
@@ -202,16 +200,15 @@ public class Agente implements Notificar {
                         BC[x + 1][y].setOk(true);
                     }
                     // Izquierda es posible monstruo o posibles precipicio => Contradicción
-                    if ((y > 0)  && (BC[x][y - 1].posibleMonstruo() && BC[x][y - 1].posiblePrecipicio())) {
+                    if ((y > 0) && (BC[x][y - 1].posibleMonstruo() || BC[x][y - 1].posiblePrecipicio())) {
                         BC[x][y - 1].setOk(true);
                     }
                     // Derecha es posible monstruo o posibles precipicio => Contradicción
-                    if ((y < BC.length - 1)  && (BC[x][y + 1].posibleMonstruo() && BC[x][y + 1].posiblePrecipicio())) {
+                    if ((y < BC.length - 1) && (BC[x][y + 1].posibleMonstruo() || BC[x][y + 1].posiblePrecipicio())) {
                         BC[x][y + 1].setOk(true);
                     }
 
-                
-                //CASO 2:  Hay brisa y NO hedor => no puede haber monstruos en las 4 adyacentes
+                    // CASO 2: Hay brisa y NO hedor => no puede haber monstruos en las 4 adyacentes
                 } else if (p[0] != 1 && p[1] == 1) {
                     // Arriba es posible monstruo => Contradicción
                     if (x > 0 && BC[x - 1][y].posibleMonstruo()) {
@@ -222,15 +219,16 @@ public class Agente implements Notificar {
                         BC[x + 1][y].setImposibleMonstruo(true);
                     }
                     // Izquierda es posible monstruo => Contradicción
-                    if (y > 0  && BC[x][y - 1].posibleMonstruo()) {
+                    if (y > 0 && BC[x][y - 1].posibleMonstruo()) {
                         BC[x][y - 1].setImposibleMonstruo(true);
                     }
                     // Derecha es posible monstruo => Contradicción
-                    if (y < BC.length - 1  && BC[x][y + 1].posibleMonstruo()) {
+                    if (y < BC.length - 1 && BC[x][y + 1].posibleMonstruo()) {
                         BC[x][y + 1].setImposibleMonstruo(true);
                     }
-                
-                //CASO 3:  si hay hedor y no brisa => no puede haber precicpicios en las 4 adyacentes
+
+                    // CASO 3: si hay hedor y no brisa => no puede haber precicpicios en las 4
+                    // adyacentes
                 } else if (p[0] == 1 && p[1] != 1) {
                     // Arriba es posible precipicio => Contradicción
                     if (x > 0 && BC[x - 1][y].posiblePrecipicio()) {
@@ -241,28 +239,26 @@ public class Agente implements Notificar {
                         BC[x + 1][y].setImposiblePrecipicio(true);
                     }
                     // Izquierda es posible precipicio => Contradicción
-                    if (y > 0  && BC[x][y - 1].posiblePrecipicio()) {
+                    if (y > 0 && BC[x][y - 1].posiblePrecipicio()) {
                         BC[x][y - 1].setImposiblePrecipicio(true);
                     }
                     // Derecha es posible precipicio => Contradicción
-                    if (y < BC.length - 1  && BC[x][y + 1].posiblePrecipicio()) {
+                    if (y < BC.length - 1 && BC[x][y + 1].posiblePrecipicio()) {
                         BC[x][y + 1].setImposiblePrecipicio(true);
                     }
                 }
 
-                
-                //CASO 4: Cuando una casilla es imposible Monstruo y imposible precipicio
-                if(x >0 ){
+                // CASO 4: Cuando una casilla es imposible Monstruo y imposible precipicio
+                if (x > 0) {
                     casillaOK(x - 1, y);
                 }
-                if(x < BC.length -1){
+                if (x < BC.length - 1) {
                     casillaOK(x + 1, y);
                 }
-                
-                if(y < BC.length -1){
+                if (y < BC.length - 1) {
                     casillaOK(x, y + 1);
                 }
-                if(y > 0){
+                if (y > 0) {
                     casillaOK(x, y - 1);
                 }
             }
@@ -291,7 +287,7 @@ public class Agente implements Notificar {
             return "OESTE";
         }
         System.out.println("HOLA NO HE HECHO ACCION!");
-        return "";
+        return " ";
     }
 
     // Actualizar casilla actual una vez eliminado el agente
@@ -323,97 +319,165 @@ public class Agente implements Notificar {
                 this.agenteX--;
                 if (!encontradoTesoro) {
                     this.camino.add("SUR"); // añadir accion inversa
+                    if (dat.getTablero()[x - 1][y] == 0) {
+                        dat.getTablero()[x - 1][y] = 4;
+                    } else if (dat.getTablero()[x - 1][y] == 8) {
+                        dat.getTablero()[x - 1][y] = 6;
+                    } else if (dat.getTablero()[x - 1][y] == 9) {
+                        dat.getTablero()[x - 1][y] = 15;
+                    } else if (dat.getTablero()[x - 1][y] == 10) {
+                        dat.getTablero()[x - 1][y] = 16;
+                    } else if (dat.getTablero()[x - 1][y] == 11) {
+                        dat.getTablero()[x - 1][y] = 17;
+                    } else if (dat.getTablero()[x - 1][y] == 13) {
+                        dat.getTablero()[x - 1][y] = 18;
+                    } else if (dat.getTablero()[x - 1][y] == 12) {
+                        dat.getTablero()[x - 1][y] = 19;
+                    } else if (dat.getTablero()[x - 1][y] == 14) {
+                        dat.getTablero()[x - 1][y] = 20;
+                    }
+                } else {
+                    if (dat.getTablero()[x - 1][y] == 0) {
+                        dat.getTablero()[x - 1][y] = 6;
+                    } else if (dat.getTablero()[x - 1][y] == 8) {
+                        dat.getTablero()[x - 1][y] = 6;
+                    } else if (dat.getTablero()[x - 1][y] == 9) {
+                        dat.getTablero()[x - 1][y] = 19;
+                    } else if (dat.getTablero()[x - 1][y] == 10) {
+                        dat.getTablero()[x - 1][y] = 18;
+                    } else if (dat.getTablero()[x - 1][y] == 11) {
+                        dat.getTablero()[x - 1][y] = 20;
+                    } else if (dat.getTablero()[x - 1][y] == 13) {
+                        dat.getTablero()[x - 1][y] = 18;
+                    } else if (dat.getTablero()[x - 1][y] == 12) {
+                        dat.getTablero()[x - 1][y] = 19;
+                    } else if (dat.getTablero()[x - 1][y] == 14) {
+                        dat.getTablero()[x - 1][y] = 20;
+                    }
                 }
-                if (dat.getTablero()[x - 1][y] == 0) {
-                    dat.getTablero()[x - 1][y] = 4;
-                } else if (dat.getTablero()[x - 1][y] == 8) {
-                    dat.getTablero()[x - 1][y] = 6;
-                } else if (dat.getTablero()[x - 1][y] == 9) {
-                    dat.getTablero()[x - 1][y] = 15;
-                } else if (dat.getTablero()[x - 1][y] == 10) {
-                    dat.getTablero()[x - 1][y] = 16;
-                } else if (dat.getTablero()[x - 1][y] == 11) {
-                    dat.getTablero()[x - 1][y] = 17;
-                } else if (dat.getTablero()[x - 1][y] == 13) {
-                    dat.getTablero()[x - 1][y] = 18;
-                } else if (dat.getTablero()[x - 1][y] == 12) {
-                    dat.getTablero()[x - 1][y] = 19;
-                } else if (dat.getTablero()[x - 1][y] == 14) {
-                    dat.getTablero()[x - 1][y] = 20;
-                }
-                ;
                 break;
             case "ESTE":
                 this.agenteY++;
                 if (!encontradoTesoro) {
                     this.camino.add("OESTE"); // añadir accion inversa
+                    if (dat.getTablero()[x][y + 1] == 0) {
+                        dat.getTablero()[x][y + 1] = 4;
+                    } else if (dat.getTablero()[x][y + 1] == 8) {
+                        dat.getTablero()[x][y + 1] = 6;
+                    } else if (dat.getTablero()[x][y + 1] == 9) {
+                        dat.getTablero()[x][y + 1] = 15;
+                    } else if (dat.getTablero()[x][y + 1] == 10) {
+                        dat.getTablero()[x][y + 1] = 16;
+                    } else if (dat.getTablero()[x][y + 1] == 11) {
+                        dat.getTablero()[x][y + 1] = 17;
+                    } else if (dat.getTablero()[x][y + 1] == 13) {
+                        dat.getTablero()[x][y + 1] = 18;
+                    } else if (dat.getTablero()[x][y + 1] == 12) {
+                        dat.getTablero()[x][y + 1] = 19;
+                    } else if (dat.getTablero()[x][y + 1] == 14) {
+                        dat.getTablero()[x][y + 1] = 20;
+                    }
+                } else {
+                    if (dat.getTablero()[x][y + 1] == 0) {
+                        dat.getTablero()[x][y + 1] = 6;
+                    } else if (dat.getTablero()[x][y + 1] == 8) {
+                        dat.getTablero()[x][y + 1] = 6;
+                    } else if (dat.getTablero()[x][y + 1] == 9) {
+                        dat.getTablero()[x][y + 1] = 19;
+                    } else if (dat.getTablero()[x][y + 1] == 10) {
+                        dat.getTablero()[x][y + 1] = 18;
+                    } else if (dat.getTablero()[x][y + 1] == 11) {
+                        dat.getTablero()[x][y + 1] = 20;
+                    } else if (dat.getTablero()[x][y + 1] == 13) {
+                        dat.getTablero()[x][y + 1] = 18;
+                    } else if (dat.getTablero()[x][y + 1] == 12) {
+                        dat.getTablero()[x][y + 1] = 19;
+                    } else if (dat.getTablero()[x][y + 1] == 14) {
+                        dat.getTablero()[x][y + 1] = 20;
+                    }
                 }
-                if (dat.getTablero()[x][y + 1] == 0) {
-                    dat.getTablero()[x][y + 1] = 4;
-                } else if (dat.getTablero()[x][y + 1] == 8) {
-                    dat.getTablero()[x][y + 1] = 6;
-                } else if (dat.getTablero()[x][y + 1] == 9) {
-                    dat.getTablero()[x][y + 1] = 15;
-                } else if (dat.getTablero()[x][y + 1] == 10) {
-                    dat.getTablero()[x][y + 1] = 16;
-                } else if (dat.getTablero()[x][y + 1] == 11) {
-                    dat.getTablero()[x][y + 1] = 17;
-                } else if (dat.getTablero()[x][y + 1] == 13) {
-                    dat.getTablero()[x][y + 1] = 18;
-                } else if (dat.getTablero()[x][y + 1] == 12) {
-                    dat.getTablero()[x][y + 1] = 19;
-                } else if (dat.getTablero()[x][y + 1] == 14) {
-                    dat.getTablero()[x][y + 1] = 20;
-                }
-                ;
                 break;
             case "SUR":
                 this.agenteX++;
                 if (!encontradoTesoro) {
                     this.camino.add("NORTE"); // añadir accion inversa
+                    if (dat.getTablero()[x + 1][y] == 0) {
+                        dat.getTablero()[x + 1][y] = 4;
+                    } else if (dat.getTablero()[x + 1][y] == 8) {
+                        dat.getTablero()[x + 1][y] = 6;
+                    } else if (dat.getTablero()[x + 1][y] == 9) {
+                        dat.getTablero()[x + 1][y] = 15;
+                    } else if (dat.getTablero()[x + 1][y] == 10) {
+                        dat.getTablero()[x + 1][y] = 16;
+                    } else if (dat.getTablero()[x + 1][y] == 11) {
+                        dat.getTablero()[x + 1][y] = 17;
+                    } else if (dat.getTablero()[x + 1][y] == 13) {
+                        dat.getTablero()[x + 1][y] = 18;
+                    } else if (dat.getTablero()[x + 1][y] == 12) {
+                        dat.getTablero()[x + 1][y] = 19;
+                    } else if (dat.getTablero()[x + 1][y] == 14) {
+                        dat.getTablero()[x + 1][y] = 20;
+                    }
+                } else {
+                    if (dat.getTablero()[x + 1][y] == 0) {
+                        dat.getTablero()[x + 1][y] = 6;
+                    } else if (dat.getTablero()[x + 1][y] == 8) {
+                        dat.getTablero()[x + 1][y] = 6;
+                    } else if (dat.getTablero()[x + 1][y] == 9) {
+                        dat.getTablero()[x + 1][y] = 19;
+                    } else if (dat.getTablero()[x + 1][y] == 10) {
+                        dat.getTablero()[x + 1][y] = 18;
+                    } else if (dat.getTablero()[x + 1][y] == 11) {
+                        dat.getTablero()[x + 1][y] = 20;
+                    } else if (dat.getTablero()[x + 1][y] == 13) {
+                        dat.getTablero()[x + 1][y] = 18;
+                    } else if (dat.getTablero()[x + 1][y] == 12) {
+                        dat.getTablero()[x + 1][y] = 19;
+                    } else if (dat.getTablero()[x + 1][y] == 14) {
+                        dat.getTablero()[x + 1][y] = 20;
+                    }
                 }
-                if (dat.getTablero()[x + 1][y] == 0) {
-                    dat.getTablero()[x + 1][y] = 4;
-                } else if (dat.getTablero()[x + 1][y] == 8) {
-                    dat.getTablero()[x + 1][y] = 6;
-                } else if (dat.getTablero()[x + 1][y] == 9) {
-                    dat.getTablero()[x + 1][y] = 15;
-                } else if (dat.getTablero()[x + 1][y] == 10) {
-                    dat.getTablero()[x + 1][y] = 16;
-                } else if (dat.getTablero()[x + 1][y] == 11) {
-                    dat.getTablero()[x + 1][y] = 17;
-                } else if (dat.getTablero()[x + 1][y] == 13) {
-                    dat.getTablero()[x + 1][y] = 18;
-                } else if (dat.getTablero()[x + 1][y] == 12) {
-                    dat.getTablero()[x + 1][y] = 19;
-                } else if (dat.getTablero()[x + 1][y] == 14) {
-                    dat.getTablero()[x + 1][y] = 20;
-                }
-                ;
                 break;
             case "OESTE":
                 this.agenteY--;
                 if (!encontradoTesoro) {
                     this.camino.add("ESTE"); // añadir accion inversa
+                    if (dat.getTablero()[x][y - 1] == 0) {
+                        dat.getTablero()[x][y - 1] = 4;
+                    } else if (dat.getTablero()[x][y - 1] == 8) {
+                        dat.getTablero()[x][y - 1] = 6;
+                    } else if (dat.getTablero()[x][y - 1] == 9) {
+                        dat.getTablero()[x][y - 1] = 15;
+                    } else if (dat.getTablero()[x][y - 1] == 10) {
+                        dat.getTablero()[x][y - 1] = 16;
+                    } else if (dat.getTablero()[x][y - 1] == 11) {
+                        dat.getTablero()[x][y - 1] = 17;
+                    } else if (dat.getTablero()[x][y - 1] == 13) {
+                        dat.getTablero()[x][y - 1] = 18;
+                    } else if (dat.getTablero()[x][y - 1] == 12) {
+                        dat.getTablero()[x][y - 1] = 19;
+                    } else if (dat.getTablero()[x][y - 1] == 14) {
+                        dat.getTablero()[x][y - 1] = 20;
+                    }
+                } else {
+                    if (dat.getTablero()[x][y - 1] == 0) {
+                        dat.getTablero()[x][y - 1] = 6;
+                    } else if (dat.getTablero()[x][y - 1] == 8) {
+                        dat.getTablero()[x][y - 1] = 6;
+                    } else if (dat.getTablero()[x][y - 1] == 9) {
+                        dat.getTablero()[x][y - 1] = 19;
+                    } else if (dat.getTablero()[x][y - 1] == 10) {
+                        dat.getTablero()[x][y - 1] = 18;
+                    } else if (dat.getTablero()[x][y - 1] == 11) {
+                        dat.getTablero()[x][y - 1] = 20;
+                    } else if (dat.getTablero()[x][y - 1] == 13) {
+                        dat.getTablero()[x][y - 1] = 18;
+                    } else if (dat.getTablero()[x][y - 1] == 12) {
+                        dat.getTablero()[x][y - 1] = 19;
+                    } else if (dat.getTablero()[x][y - 1] == 14) {
+                        dat.getTablero()[x][y - 1] = 20;
+                    }
                 }
-                if (dat.getTablero()[x][y - 1] == 0) {
-                    dat.getTablero()[x][y - 1] = 4;
-                } else if (dat.getTablero()[x][y - 1] == 8) {
-                    dat.getTablero()[x][y - 1] = 6;
-                } else if (dat.getTablero()[x][y - 1] == 9) {
-                    dat.getTablero()[x][y - 1] = 15;
-                } else if (dat.getTablero()[x][y - 1] == 10) {
-                    dat.getTablero()[x][y - 1] = 16;
-                } else if (dat.getTablero()[x][y - 1] == 11) {
-                    dat.getTablero()[x][y - 1] = 17;
-                } else if (dat.getTablero()[x][y - 1] == 13) {
-                    dat.getTablero()[x][y - 1] = 18;
-                } else if (dat.getTablero()[x][y - 1] == 12) {
-                    dat.getTablero()[x][y - 1] = 19;
-                } else if (dat.getTablero()[x][y - 1] == 14) {
-                    dat.getTablero()[x][y - 1] = 20;
-                }
-                ;
                 break;
             default:
                 break;

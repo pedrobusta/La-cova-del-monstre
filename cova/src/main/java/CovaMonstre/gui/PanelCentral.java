@@ -107,107 +107,112 @@ public class PanelCentral extends JPanel {
                         if (SwingUtilities.isLeftMouseButton(e)) { // clic izq
                             tablero[fila][columna] = 1;
                             // Añadir hedor - 9
-                            if (tablero[fila][columna + 1] == 10) {
-                                tablero[fila][columna + 1] = 11;
-                            } else if (tablero[fila][columna + 1] == 8) {
-                                tablero[fila][columna + 1] = 12;
-                            } else if (tablero[fila][columna + 1] == 13) {
-                                tablero[fila][columna + 1] = 14;
-                            } else if (tablero[fila][columna + 1] == 0) {
-                                tablero[fila][columna + 1] = 9;
+                            if (columna < dat.getDimension() - 1) { // dentro del tablero
+                                if (tablero[fila][columna + 1] == 10) {
+                                    tablero[fila][columna + 1] = 11;
+                                } else if (tablero[fila][columna + 1] == 8) {
+                                    tablero[fila][columna + 1] = 12;
+                                } else if (tablero[fila][columna + 1] == 13) {
+                                    tablero[fila][columna + 1] = 14;
+                                } else if (tablero[fila][columna + 1] == 0) {
+                                    tablero[fila][columna + 1] = 9;
+                                }
                             }
 
-                            if (tablero[fila][columna - 1] == 10) {
-                                tablero[fila][columna - 1] = 11;
-                            } else if (tablero[fila][columna - 1] == 8) {
-                                tablero[fila][columna - 1] = 12;
-                            } else if (tablero[fila][columna - 1] == 13) {
-                                tablero[fila][columna - 1] = 14;
-                            } else if (tablero[fila][columna - 1] == 0) {
-                                tablero[fila][columna - 1] = 9;
+                            if (columna > 0) {
+                                if (tablero[fila][columna - 1] == 10) {
+                                    tablero[fila][columna - 1] = 11;
+                                } else if (tablero[fila][columna - 1] == 8) {
+                                    tablero[fila][columna - 1] = 12;
+                                } else if (tablero[fila][columna - 1] == 13) {
+                                    tablero[fila][columna - 1] = 14;
+                                } else if (tablero[fila][columna - 1] == 0) {
+                                    tablero[fila][columna - 1] = 9;
+                                }
                             }
 
-                            if (tablero[fila + 1][columna] == 10) {
-                                tablero[fila + 1][columna] = 11;
-                            } else if (tablero[fila + 1][columna] == 8) {
-                                tablero[fila + 1][columna] = 12;
-                            } else if (tablero[fila + 1][columna] == 13) {
-                                tablero[fila + 1][columna] = 14;
-                            } else if (tablero[fila + 1][columna] == 0) {
-                                tablero[fila + 1][columna] = 9;
+                            if (fila < dat.getDimension() - 1) {
+                                if (tablero[fila + 1][columna] == 10) {
+                                    tablero[fila + 1][columna] = 11;
+                                } else if (tablero[fila + 1][columna] == 8) {
+                                    tablero[fila + 1][columna] = 12;
+                                } else if (tablero[fila + 1][columna] == 13) {
+                                    tablero[fila + 1][columna] = 14;
+                                } else if (tablero[fila + 1][columna] == 0) {
+                                    tablero[fila + 1][columna] = 9;
+                                }
                             }
 
-                            if (tablero[fila - 1][columna] == 10) {
-                                tablero[fila - 1][columna] = 11;
-                            } else if (tablero[fila - 1][columna] == 8) {
-                                tablero[fila - 1][columna] = 12;
-                            } else if (tablero[fila - 1][columna] == 13) {
-                                tablero[fila - 1][columna] = 14;
-                            } else if (tablero[fila - 1][columna] == 0) {
-                                tablero[fila - 1][columna] = 9;
+                            if (fila > 0) {
+                                if (tablero[fila - 1][columna] == 10) {
+                                    tablero[fila - 1][columna] = 11;
+                                } else if (tablero[fila - 1][columna] == 8) {
+                                    tablero[fila - 1][columna] = 12;
+                                } else if (tablero[fila - 1][columna] == 13) {
+                                    tablero[fila - 1][columna] = 14;
+                                } else if (tablero[fila - 1][columna] == 0) {
+                                    tablero[fila - 1][columna] = 9;
+                                }
                             }
 
                         } else if (SwingUtilities.isRightMouseButton(e)) { // clic derecho
                             tablero[fila][columna] = 0;
-                            // quitar hedor
-                            // JTP comprobar ambiente
-                            tablero[fila][columna + 1] = 0;
-                            tablero[fila][columna - 1] = 0;
-                            tablero[fila + 1][columna] = 0;
-                            tablero[fila - 1][columna] = 0;
                         }
                         break;
                     case 7: // precicicio
                         if (SwingUtilities.isLeftMouseButton(e)) {
                             tablero[fila][columna] = 7;
                             // añadir brisas - 10
-                            if (tablero[fila][columna + 1] == 9) {
-                                tablero[fila][columna + 1] = 11;
-                            } else if (tablero[fila][columna + 1] == 8) {
-                                tablero[fila][columna + 1] = 13;
-                            } else if (tablero[fila][columna + 1] == 12) {
-                                tablero[fila][columna + 1] = 14;
-                            } else if (tablero[fila][columna + 1] == 0) {
-                                tablero[fila][columna + 1] = 10;
+                            if (columna < dat.getDimension() - 1) {
+                                if (tablero[fila][columna + 1] == 9) {
+                                    tablero[fila][columna + 1] = 11;
+                                } else if (tablero[fila][columna + 1] == 8) {
+                                    tablero[fila][columna + 1] = 13;
+                                } else if (tablero[fila][columna + 1] == 12) {
+                                    tablero[fila][columna + 1] = 14;
+                                } else if (tablero[fila][columna + 1] == 0) {
+                                    tablero[fila][columna + 1] = 10;
+                                }
                             }
 
-                            if (tablero[fila][columna - 1] == 9) {
-                                tablero[fila][columna - 1] = 11;
-                            } else if (tablero[fila][columna - 1] == 8) {
-                                tablero[fila][columna - 1] = 13;
-                            } else if (tablero[fila][columna - 1] == 12) {
-                                tablero[fila][columna - 1] = 14;
-                            } else if (tablero[fila][columna - 1] == 0) {
-                                tablero[fila][columna - 1] = 10;
+                            if (columna > 0) {
+                                if (tablero[fila][columna - 1] == 9) {
+                                    tablero[fila][columna - 1] = 11;
+                                } else if (tablero[fila][columna - 1] == 8) {
+                                    tablero[fila][columna - 1] = 13;
+                                } else if (tablero[fila][columna - 1] == 12) {
+                                    tablero[fila][columna - 1] = 14;
+                                } else if (tablero[fila][columna - 1] == 0) {
+                                    tablero[fila][columna - 1] = 10;
+                                }
                             }
 
-                            if (tablero[fila + 1][columna] == 9) {
-                                tablero[fila + 1][columna] = 11;
-                            } else if (tablero[fila + 1][columna] == 8) {
-                                tablero[fila + 1][columna] = 13;
-                            } else if (tablero[fila + 1][columna] == 12) {
-                                tablero[fila + 1][columna] = 14;
-                            } else if (tablero[fila + 1][columna] == 0) {
-                                tablero[fila + 1][columna] = 10;
+                            if (fila < dat.getDimension() - 1) {
+                                if (tablero[fila + 1][columna] == 9) {
+                                    tablero[fila + 1][columna] = 11;
+                                } else if (tablero[fila + 1][columna] == 8) {
+                                    tablero[fila + 1][columna] = 13;
+                                } else if (tablero[fila + 1][columna] == 12) {
+                                    tablero[fila + 1][columna] = 14;
+                                } else if (tablero[fila + 1][columna] == 0) {
+                                    tablero[fila + 1][columna] = 10;
+                                }
                             }
 
-                            if (tablero[fila - 1][columna] == 9) {
-                                tablero[fila - 1][columna] = 11;
-                            } else if (tablero[fila - 1][columna] == 8) {
-                                tablero[fila - 1][columna] = 13;
-                            } else if (tablero[fila - 1][columna] == 12) {
-                                tablero[fila - 1][columna] = 14;
-                            } else if (tablero[fila - 1][columna] == 0) {
-                                tablero[fila - 1][columna] = 10;
+                            if (fila > 0) {
+                                if (tablero[fila - 1][columna] == 9) {
+                                    tablero[fila - 1][columna] = 11;
+                                } else if (tablero[fila - 1][columna] == 8) {
+                                    tablero[fila - 1][columna] = 13;
+                                } else if (tablero[fila - 1][columna] == 12) {
+                                    tablero[fila - 1][columna] = 14;
+                                } else if (tablero[fila - 1][columna] == 0) {
+                                    tablero[fila - 1][columna] = 10;
+                                }
                             }
+
                         } else if (SwingUtilities.isRightMouseButton(e)) {
                             tablero[fila][columna] = 0;
-                            // quitar brisas
-                            // JTP comprobar ambiente
-                            tablero[fila][columna + 1] = 0;
-                            tablero[fila][columna - 1] = 0;
-                            tablero[fila + 1][columna] = 0;
-                            tablero[fila - 1][columna] = 0;
                         }
                         break;
                     case 8: // tesoro
@@ -263,12 +268,12 @@ public class PanelCentral extends JPanel {
                 g.setColor(Color.BLACK);
                 g.drawRect(x, y, anchoCelda, altoCelda);
 
-                //dibujar monstruo
+                // dibujar monstruo
                 if (tablero[fila][columna] == 1) {
                     g.setComposite(opacidad2);
                     g.drawImage(mounstruoImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
 
-                //dibujar agente
+                    // dibujar agente
                 } else if (tablero[fila][columna] == 4) {
                     g.setComposite(opacidad2);
                     // Crear una transformación para rotar la imagen 90 grados
@@ -296,74 +301,74 @@ public class PanelCentral extends JPanel {
                     // dibujo
                     g2d.setTransform(new AffineTransform());
 
-                //Precipicio
+                    // Precipicio
                 } else if (tablero[fila][columna] == 7) {
                     g.setComposite(opacidad2);
                     g.drawImage(precipicioImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
-                //Tesoro
+                    // Tesoro
                 } else if (tablero[fila][columna] == 8) {
                     g.setComposite(opacidad2);
                     g.drawImage(tesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
-                //HEDOR 
+                    // HEDOR
                 } else if (tablero[fila][columna] == 9) {
                     g.setComposite(opacidad2);
                     g.drawImage(hedorImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
-                //Brisa
+                    // Brisa
                 } else if (tablero[fila][columna] == 10) {
                     g.setComposite(opacidad2);
                     g.drawImage(brisaImage, x + 25, y + 25, anchoCelda - 50, altoCelda - 50, null);
-                //Hedor y Brisa 
+                    // Hedor y Brisa
                 } else if (tablero[fila][columna] == 11) {
                     g.setComposite(opacidad2);
                     g.drawImage(hedorBrisaImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
-                //HEDOR y Tesoro 
+                    // HEDOR y Tesoro
                 } else if (tablero[fila][columna] == 12) {
                     g.setComposite(opacidad2);
                     g.drawImage(hedorTesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
-                //Brisa y Tesoro 
+                    // Brisa y Tesoro
                 } else if (tablero[fila][columna] == 13) {
                     g.setComposite(opacidad2);
                     g.drawImage(brisaTesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
-                //HEDOR y Brisa y Tesoro 
+                    // HEDOR y Brisa y Tesoro
                 } else if (tablero[fila][columna] == 14) {
                     g.setComposite(opacidad2);
                     g.drawImage(hedorBrisaTesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
                 }
-                //Agente y Tesoro
+                // Agente y Tesoro
                 else if (tablero[fila][columna] == 6) {
                     g.setComposite(opacidad2);
                     g.drawImage(agenteTesoroImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
-                }   
-                //Agente y Hedor
-                else if (tablero[fila][columna] == 15){
+                }
+                // Agente y Hedor
+                else if (tablero[fila][columna] == 15) {
                     g.setComposite(opacidad2);
                     g.drawImage(agenteHedorImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
                 }
-                //Agente y Brisa
-                else if (tablero[fila][columna] == 16){
+                // Agente y Brisa
+                else if (tablero[fila][columna] == 16) {
                     g.setComposite(opacidad2);
                     g.drawImage(agenteBrisaImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
                 }
-                //Agente y Hedor y Brisa
-                else if (tablero[fila][columna] == 17){
+                // Agente y Hedor y Brisa
+                else if (tablero[fila][columna] == 17) {
                     g.setComposite(opacidad2);
                     g.drawImage(agenteHedorBrisaImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
-                } 
-                //Agente y Tesoro y Brisa
-                else if (tablero[fila][columna] == 18 ){
+                }
+                // Agente y Tesoro y Brisa
+                else if (tablero[fila][columna] == 18) {
                     g.setComposite(opacidad2);
                     g.drawImage(agenteTesoroBrisaImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
-                } 
-                //Agente y Tesoro y Hedor
-                else if (tablero[fila][columna] == 19){
+                }
+                // Agente y Tesoro y Hedor
+                else if (tablero[fila][columna] == 19) {
                     g.setComposite(opacidad2);
                     g.drawImage(agenteTesoroHedorImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
                 }
-                //Agente y Tesoro y Hedor y Brisa
-                else if (tablero[fila][columna] == 20 ){
+                // Agente y Tesoro y Hedor y Brisa
+                else if (tablero[fila][columna] == 20) {
                     g.setComposite(opacidad2);
                     g.drawImage(agenteTesoroHedorBrisaImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
-                }    
+                }
             }
         }
         gr.drawImage(bi, 0, 0, this);
