@@ -79,7 +79,7 @@ public class Agente implements Notificar {
         }
         // si ya encontradoTesoro hay que volver
         if (encontradoTesoro) {
-            for (int i = camino.size() - 1; i >= 0; i--) {
+            for (int i = camino.size() - 1; i > 0; i--) {
                 String accion = camino.get(i);
                 actualizarCasillaActual(agenteX, agenteY);
                 actualizarCasillaSiguiente(agenteX, agenteY, accion);
@@ -337,6 +337,7 @@ public class Agente implements Notificar {
                         dat.getTablero()[x - 1][y] = 20;
                     }
                 } else {
+                    
                     if (dat.getTablero()[x - 1][y] == 0) {
                         dat.getTablero()[x - 1][y] = 6;
                     } else if (dat.getTablero()[x - 1][y] == 8) {
