@@ -38,7 +38,7 @@ public class Agente implements Notificar {
         this.dat = dat;
         this.prog = not;
         this.start = true;
-        this.delay = 1000;
+        this.delay = 200;
 
         this.agenteX = dat.getDimension() - 1;
         this.agenteY = 0;
@@ -66,7 +66,7 @@ public class Agente implements Notificar {
 
             // 3- Preguntar BC que acción debe hacer
             String accion = preguntarBC(agenteX, agenteY);
-            System.out.println("ACCION: "+accion);
+            System.out.println("ACCION: " + accion);
 
             // 4- Realizar dicho movimiento
             if (accion != " ") {
@@ -79,7 +79,7 @@ public class Agente implements Notificar {
         }
         // si ya encontradoTesoro hay que volver
         if (encontradoTesoro) {
-            for (int i = camino.size() - 1; i > 0; i--) {
+            for (int i = camino.size() - 1; i >= 0; i--) {
                 String accion = camino.get(i);
                 actualizarCasillaActual(agenteX, agenteY);
                 actualizarCasillaSiguiente(agenteX, agenteY, accion);
@@ -105,33 +105,34 @@ public class Agente implements Notificar {
         } else {
             switch (dat.getTablero()[agenteX][agenteY]) {
                 case 6:
-                    // Tesoro
+                    // Tesoro + Agente
                     p[2] = 1;
+                    break;
                 case 15:
-                    // hedor
+                    // hedor + agente
                     p[0] = 1;
                     break;
                 case 16:
-                    // brisa
+                    // brisa + agente
                     p[1] = 1;
                     break;
                 case 17:
-                    // hedor ^ brisa
+                    // hedor ^ brisa + agente
                     p[0] = 1;
                     p[1] = 1;
                     break;
                 case 19:
-                    // hedor ^ tesoro
+                    // hedor ^ tesoro + agente
                     p[0] = 1;
                     p[2] = 1;
                     break;
                 case 18:
-                    // brisa ^ tesoro
+                    // brisa ^ tesoro + agente
                     p[1] = 1;
                     p[2] = 1;
                     break;
                 case 20:
-                    // hedor ^ brisa ^ tesoro
+                    // hedor ^ brisa ^ tesoro + agente
                     p[0] = 1;
                     p[1] = 1;
                     p[2] = 1;
@@ -261,7 +262,9 @@ public class Agente implements Notificar {
                 if (y > 0) {
                     casillaOK(x, y - 1);
                 }
+
             }
+
         }
 
         BC[x][y].setVisitada(true);
@@ -269,22 +272,36 @@ public class Agente implements Notificar {
 
     public String preguntarBC(int x, int y) { // x fila , y columna
         // Prioridad en sentido del reloj
-        if (x > 0 && BC[x - 1][y].isOk() && !BC[x-1][y].isVisitada()) {
-            return "NORTE";
-        } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && !BC[x][y+1].isVisitada()) {
-            return "ESTE";
-        } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && !BC[x+1][y].isVisitada()) {
-            return "SUR";
-        } else if (y > 0 && BC[x][y - 1].isOk() && !BC[x][y-1].isVisitada()) {
-            return "OESTE";
-        } else if(x > 0 && BC[x - 1][y].isOk()){
-            return "NORTE";
-        } else if(y < BC.length - 1 && BC[x][y + 1].isOk()){
-            return "ESTE";
-        } else if(x < BC.length - 1 && BC[x + 1][y].isOk()){
-            return "SUR";
-        } else if(y > 0 && BC[x][y - 1].isOk()){
-            return "OESTE";
+        if (!encontradoTesoro) {
+            if (x > 0 && BC[x - 1][y].isOk() && !BC[x - 1][y].isVisitada()) {
+                return "NORTE";
+            } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && !BC[x][y + 1].isVisitada()) {
+                return "ESTE";
+            } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && !BC[x + 1][y].isVisitada()) {
+                return "SUR";
+            } else if (y > 0 && BC[x][y - 1].isOk() && !BC[x][y - 1].isVisitada()) {
+                return "OESTE";
+
+            } else if (x > 0 && BC[x - 1][y].isOk() && camino.get(camino.size() - 1) != "NORTE") {
+                return "NORTE";
+            } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && camino.get(camino.size() - 1) != "ESTE") {
+                return "ESTE";
+            } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && camino.get(camino.size() - 1) != "SUR") {
+                return "SUR";
+            } else if (y > 0 && BC[x][y - 1].isOk() && camino.get(camino.size() - 1) != "OESTE") {
+                return "OESTE";
+
+                // Si ya visitadas volver a atras
+            } else if (x > 0 && BC[x - 1][y].isOk()) {
+                return "NORTE";
+            } else if (y < BC.length - 1 && BC[x][y + 1].isOk()) {
+                return "ESTE";
+            } else if (x < BC.length - 1 && BC[x + 1][y].isOk()) {
+                return "SUR";
+            } else if (y > 0 && BC[x][y - 1].isOk()) {
+                return "OESTE";
+            }
+
         }
         System.out.println("HOLA NO HE HECHO ACCION!");
         return " ";
@@ -337,7 +354,6 @@ public class Agente implements Notificar {
                         dat.getTablero()[x - 1][y] = 20;
                     }
                 } else {
-                    
                     if (dat.getTablero()[x - 1][y] == 0) {
                         dat.getTablero()[x - 1][y] = 6;
                     } else if (dat.getTablero()[x - 1][y] == 8) {
@@ -486,7 +502,7 @@ public class Agente implements Notificar {
     }
 
     public void casillaOK(int x, int y) {
-        
+
         if (BC[x][y].imposiblePrecipicio() &&
                 BC[x][y].imposibleMonstruo()) {
 
@@ -499,22 +515,26 @@ public class Agente implements Notificar {
         BC[agenteX][agenteY].setBrisa(true);
 
         // Posible precipicio en agenteX - 1
-        if ((hayMuro(agenteX, agenteY, -1, 0) != -1) && !(BC[agenteX - 1][agenteY].isOk()) && (!BC[agenteX - 1][agenteY].isVisitada())) {
+        if ((hayMuro(agenteX, agenteY, -1, 0) != -1) && !(BC[agenteX - 1][agenteY].isOk())
+                && (!BC[agenteX - 1][agenteY].isVisitada())) {
             BC[agenteX - 1][agenteY].setPosiblePrecipicio(true);
         }
 
         // Posible precipicio en agenteX + 1
-        if ((hayMuro(agenteX, agenteY, 1, 0) != -1) && !(BC[agenteX + 1][agenteY].isOk()) &&  (!BC[agenteX + 1][agenteY].isVisitada())) {
+        if ((hayMuro(agenteX, agenteY, 1, 0) != -1) && !(BC[agenteX + 1][agenteY].isOk())
+                && (!BC[agenteX + 1][agenteY].isVisitada())) {
             BC[agenteX + 1][agenteY].setPosiblePrecipicio(true);
         }
 
         // Posible precipicio en agenteY - 1
-        if ((hayMuro(agenteX, agenteY, 0, -1) != -1) && !(BC[agenteX][agenteY - 1].isOk()) && (!BC[agenteX][agenteY - 1].isVisitada())) {
+        if ((hayMuro(agenteX, agenteY, 0, -1) != -1) && !(BC[agenteX][agenteY - 1].isOk())
+                && (!BC[agenteX][agenteY - 1].isVisitada())) {
             BC[agenteX][agenteY - 1].setPosiblePrecipicio(true);
         }
 
         // Posible precipicio en agenteY + 1
-        if ((hayMuro(agenteX, agenteY, 0, 1) != -1) && !(BC[agenteX][agenteY + 1].isOk()) && (!BC[agenteX][agenteY + 1].isVisitada())) {
+        if ((hayMuro(agenteX, agenteY, 0, 1) != -1) && !(BC[agenteX][agenteY + 1].isOk())
+                && (!BC[agenteX][agenteY + 1].isVisitada())) {
             BC[agenteX][agenteY + 1].setPosiblePrecipicio(true);
         }
     }
@@ -524,22 +544,26 @@ public class Agente implements Notificar {
         BC[agenteX][agenteY].setHedor(true);
 
         // arriba Posible monstruo en agenteX - 1
-        if ((hayMuro(agenteX, agenteY, -1, 0) != -1) && !(BC[agenteX - 1][agenteY].isOk()) && (!BC[agenteX - 1][agenteY].isVisitada())) {
+        if ((hayMuro(agenteX, agenteY, -1, 0) != -1) && !(BC[agenteX - 1][agenteY].isOk())
+                && (!BC[agenteX - 1][agenteY].isVisitada())) {
             BC[agenteX - 1][agenteY].setPosibleMonstruo(true);
         }
 
         // ABAJO Posible monstruo en agenteX + 1
-        if ((hayMuro(agenteX, agenteY, 1, 0) != -1) && !(BC[agenteX + 1][agenteY].isOk()) && (!BC[agenteX + 1][agenteY].isVisitada())) {
+        if ((hayMuro(agenteX, agenteY, 1, 0) != -1) && !(BC[agenteX + 1][agenteY].isOk())
+                && (!BC[agenteX + 1][agenteY].isVisitada())) {
             BC[agenteX + 1][agenteY].setPosibleMonstruo(true);
         }
 
         // izq Posible monstruo en agenteY - 1
-        if ((hayMuro(agenteX, agenteY, 0, -1) != -1) && !(BC[agenteX][agenteY - 1].isOk()) && (!BC[agenteX][agenteY - 1].isVisitada())) {
+        if ((hayMuro(agenteX, agenteY, 0, -1) != -1) && !(BC[agenteX][agenteY - 1].isOk())
+                && (!BC[agenteX][agenteY - 1].isVisitada())) {
             BC[agenteX][agenteY - 1].setPosibleMonstruo(true);
         }
 
         // DERECHA posible monstruo en agenteY + 1
-        if ((hayMuro(agenteX, agenteY, 0, 1) != -1) && !(BC[agenteX][agenteY + 1].isOk()) && (!BC[agenteX][agenteY + 1].isVisitada())) {
+        if ((hayMuro(agenteX, agenteY, 0, 1) != -1) && !(BC[agenteX][agenteY + 1].isOk())
+                && (!BC[agenteX][agenteY + 1].isVisitada())) {
             BC[agenteX][agenteY + 1].setPosibleMonstruo(true);
         }
     }
