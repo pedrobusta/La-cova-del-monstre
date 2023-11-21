@@ -568,6 +568,29 @@ public class Agente implements Notificar {
         }
     }
 
+    // Disparar
+    public void disparar(String direccion) {
+        switch (direccion) {
+            case "NORTE":
+                //desde x actual hasta 0 si la casilla [x_i][y] == monstruo , actualiza dicha casilla
+                // a monstruo muerto
+                break;
+
+            case "ESTE":
+
+                break;
+            case "SUR":
+
+                break;
+            case "OESTE":
+
+                break;
+
+            default:
+                break;
+        }
+    }
+
     public void esperar(int time) {
         try {
             Thread.sleep(time);
