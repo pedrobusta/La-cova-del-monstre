@@ -30,6 +30,7 @@ public class Agente implements Notificar {
     private boolean encontradoTesoro = false;
     private int agenteX;
     private int agenteY;
+    private int cont = 0; //contador de pasos
 
     // conjutos de acciones realizado guardado en sentido inverso
     private ArrayList<String> camino = new ArrayList<>(); 
@@ -255,40 +256,86 @@ public class Agente implements Notificar {
     public String preguntarBC(int x, int y) { // x fila , y columna
         // Prioridad en sentido del reloj
         if (!encontradoTesoro) {
-            // sentido del reloj no visitada fist 
-            if (x > 0 && BC[x - 1][y].isOk() && !BC[x - 1][y].isVisitada()) {
-                return "NORTE";
-            } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && !BC[x][y + 1].isVisitada()) {
-                return "ESTE";
-            } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && !BC[x + 1][y].isVisitada()) {
-                return "SUR";
-            } else if (y > 0 && BC[x][y - 1].isOk() && !BC[x][y - 1].isVisitada()) {
-                return "OESTE";
+            if(cont < BC.length * BC.length){
+                cont++;
+                // sentido del reloj no visitada fist 
+                if (x > 0 && BC[x - 1][y].isOk() && !BC[x - 1][y].isVisitada()) {
+                    return "NORTE";
+                } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && !BC[x][y + 1].isVisitada()) {
+                    return "ESTE";
+                } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && !BC[x + 1][y].isVisitada()) {
+                    return "SUR";
+                } else if (y > 0 && BC[x][y - 1].isOk() && !BC[x][y - 1].isVisitada()) {
+                    return "OESTE";
 
-            // sentido del reloj visitada pero no repetido first 
-            } else if (x > 0 && BC[x - 1][y].isOk() && camino.get(camino.size() - 1) != "NORTE") {
-                return "NORTE";
-            } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && camino.get(camino.size() - 1) != "ESTE") {
-                return "ESTE";
-            } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && camino.get(camino.size() - 1) != "SUR") {
-                return "SUR";
-            } else if (y > 0 && BC[x][y - 1].isOk() && camino.get(camino.size() - 1) != "OESTE") {
-                return "OESTE";
+                // sentido del reloj visitada pero no repetido first 
+                } else if (x > 0 && BC[x - 1][y].isOk() && camino.get(camino.size() - 1) != "NORTE") {
+                    return "NORTE";
+                } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && camino.get(camino.size() - 1) != "ESTE") {
+                    return "ESTE";
+                } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && camino.get(camino.size() - 1) != "SUR") {
+                    return "SUR";
+                } else if (y > 0 && BC[x][y - 1].isOk() && camino.get(camino.size() - 1) != "OESTE") {
+                    return "OESTE";
 
-            // Si ya visitadas volver a atras
-            } else if (x > 0 && BC[x - 1][y].isOk()) {
-                return "NORTE";
-            } else if (y < BC.length - 1 && BC[x][y + 1].isOk()) {
-                return "ESTE";
-            } else if (x < BC.length - 1 && BC[x + 1][y].isOk()) {
-                return "SUR";
-            } else if (y > 0 && BC[x][y - 1].isOk()) {
-                return "OESTE";
+                // Si ya visitadas volver a atras
+                } else if (x > 0 && BC[x - 1][y].isOk()) {
+                    return "NORTE";
+                } else if (y < BC.length - 1 && BC[x][y + 1].isOk()) {
+                    return "ESTE";
+                } else if (x < BC.length - 1 && BC[x + 1][y].isOk()) {
+                    return "SUR";
+                } else if (y > 0 && BC[x][y - 1].isOk()) {
+                    return "OESTE";
+                }
+            }else if (cont < BC.length* BC.length * 2){
+                cont++;
+                if(cont > BC.length* BC.length * 2){
+                    cont = 0;
+                }
+                // sentido aleatorio no visitada fist 
+                if (x > 0 && BC[x - 1][y].isOk() && !BC[x - 1][y].isVisitada()) {
+                    return "NORTE";
+                }else if (y > 0 && BC[x][y - 1].isOk() && !BC[x][y - 1].isVisitada()) {
+                    return "OESTE";
+                } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && !BC[x + 1][y].isVisitada()) {
+                    return "SUR"; 
+                } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && !BC[x][y + 1].isVisitada()) {
+                    return "ESTE";
+                
+
+                // sentido aleatorio visitada pero no repetido first 
+                } else if (x > 0 && BC[x - 1][y].isOk() && camino.get(camino.size() - 1) != "NORTE") {
+                    return "NORTE";
+                }else if (y > 0 && BC[x][y - 1].isOk() && camino.get(camino.size() - 1) != "OESTE") {
+                    return "OESTE";
+                
+                } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && camino.get(camino.size() - 1) != "SUR") {
+                    return "SUR";
+                } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && camino.get(camino.size() - 1) != "ESTE") {
+                    return "ESTE"; 
+
+                // Si ya visitadas volver a atras    
+                }else if (y > 0 && BC[x][y - 1].isOk()) {
+                    return "OESTE";
+                } else if (x > 0 && BC[x - 1][y].isOk()) {
+                    return "NORTE";
+                } else if (y < BC.length - 1 && BC[x][y + 1].isOk()) {
+                    return "ESTE";
+                } else if (x < BC.length - 1 && BC[x + 1][y].isOk()) {
+                    return "SUR";
+                } 
+                
             }
+            
+            System.out.println("HOLA NO HE HECHO ACCION!");
+            return " ";
 
+            
         }
         System.out.println("HOLA NO HE HECHO ACCION!");
         return " ";
+
     }
 
     // Actualizar casilla actual una vez eliminado el agente
