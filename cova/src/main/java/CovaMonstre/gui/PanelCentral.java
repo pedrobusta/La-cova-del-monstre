@@ -25,8 +25,8 @@ public class PanelCentral extends JPanel {
     private int modo = 0; // 0-nada , 1-pared, 2-robot
 
     private BufferedImage textureImage;
-    private BufferedImage robotImage, paredImage, mounstruoImage, agenteImage,
-            precipicioImage, tesoroImage, hedorImage, brisaImage,
+    private BufferedImage robotImage, paredImage, mounstruoImage, monstruoMuertoImage,agenteImage,
+            precipicioImage, tesoroImage, hedorImage, brisaImage, dispararImage,
             hedorBrisaImage, hedorTesoroImage, brisaTesoroImage,
             hedorBrisaTesoroImage,
             agenteTesoroImage,
@@ -50,7 +50,9 @@ public class PanelCentral extends JPanel {
             paredImage = ImageIO.read(getClass().getResource("../imagenes/ladrillo.jpg"));
 
             agenteImage = ImageIO.read(getClass().getResource("../imagenes/agenteFlecha.png"));
+            dispararImage = ImageIO.read(getClass().getResource("../imagenes/disparar.png"));
             mounstruoImage = ImageIO.read(getClass().getResource("../imagenes/monstruo.png"));
+            monstruoMuertoImage = ImageIO.read(getClass().getResource("../imagenes/monstruoMuerto.png"));
             precipicioImage = ImageIO.read(getClass().getResource("../imagenes/precipicio.png"));
             tesoroImage = ImageIO.read(getClass().getResource("../imagenes/tesoro.png"));
             hedorImage = ImageIO.read(getClass().getResource("../imagenes/hedor.png"));
@@ -368,6 +370,16 @@ public class PanelCentral extends JPanel {
                 else if (tablero[fila][columna] == 20) {
                     g.setComposite(opacidad2);
                     g.drawImage(agenteTesoroHedorBrisaImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                }
+                // Monstruo muerto
+                else if (tablero[fila][columna] == 2){
+                    g.setComposite(opacidad2);
+                    g.drawImage(monstruoMuertoImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                }
+                // Agente disparar
+                else if (tablero[fila][columna] == 3){
+                    g.setComposite(opacidad2);
+                    g.drawImage(dispararImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
                 }
             }
         }
