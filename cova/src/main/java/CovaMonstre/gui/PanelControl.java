@@ -147,6 +147,12 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         labelVelocidad.setForeground(Color.white);
         labelVelocidad.setBounds(45, 630, 100, 30);
 
+
+        JLabel labelAgentes = new JLabel("AGENTES");
+        labelAgentes.setFont(new Font("Arial", Font.BOLD, 13));
+        labelAgentes.setForeground(Color.white);
+        labelAgentes.setBounds(52, 669, 100, 30);
+
         JButton btnUP = new JButton("+");
         btnUP.setActionCommand("upVelocidad");
         btnUP.setBackground(new Color(126, 100, 78));
@@ -161,11 +167,25 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         btnDowm.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
         btnDowm.addActionListener(this);
 
+        JButton btnUPAG = new JButton("+");
+        btnUPAG.setActionCommand("upAG");
+        btnUPAG.setBackground(new Color(126, 100, 78));
+        btnUPAG.setBounds(123, 670, 25, 25);
+        btnUPAG.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
+        btnUPAG.addActionListener(this);
+
+        JButton btnDowmAG = new JButton("-");
+        btnDowmAG.setActionCommand("downAG");
+        btnDowmAG.setBackground(new Color(126, 100, 78));
+        btnDowmAG.setBounds(16, 670, 25, 25);
+        btnDowmAG.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
+        btnDowmAG.addActionListener(this);
+
         // Boton Stop
         JButton stop = new JButton("STOP");
         stop.setActionCommand("Stop");
         stop.setBackground(new Color(126, 100, 78));
-        stop.setBounds(30, 670, 120, 70);
+        stop.setBounds(30, 710, 120, 70);
         stop.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
         stop.addActionListener(this);
 
@@ -177,7 +197,7 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         calcula.setIcon(calc);
         calcula.setBackground(new Color(126, 100, 78));
         calcula.setForeground(Color.white);
-        calcula.setBounds(30, 750, 120, 70);
+        calcula.setBounds(30, 790, 120, 70);
         calcula.setBorder(BorderFactory.createLineBorder(new Color(39, 66, 38)));
         calcula.addActionListener(this);
 
@@ -190,6 +210,10 @@ public class PanelControl extends JLayeredPane implements ActionListener {
         add(paredLabel);
         add(robotLabel);
         add(tesoro);
+
+        add(labelAgentes);
+        add(btnDowmAG);
+        add(btnUPAG);
 
         add(labelVelocidad);
         add(btnDowm);
@@ -217,6 +241,12 @@ public class PanelControl extends JLayeredPane implements ActionListener {
                 break;
             case "downVelocidad": // velocidad--
                 prog.notificar("downVelocidad");
+                break;
+            case "upAG": // agente++
+                prog.notificar("upAG");
+                break;
+            case "downAG": // agente--
+                prog.notificar("downAG");
                 break;
             default:
                 break;

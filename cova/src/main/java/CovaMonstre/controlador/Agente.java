@@ -1,6 +1,7 @@
 package CovaMonstre.controlador;
 
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -19,75 +20,109 @@ import CovaMonstre.modelo.Datos;
 
 public class Agente implements Notificar {
     // Atributos
+    private int N;
     private Datos dat;
     private Notificar prog;
     private boolean start;
     private int delay;
+
+    ProcesoResolver calculador = new ProcesoResolver(this, 1);
+    ProcesoResolver calculador2 = new ProcesoResolver(this, 2);
+    ProcesoResolver calculador3 = new ProcesoResolver(this, 3);
+    ProcesoResolver calculador4 = new ProcesoResolver(this, 4);
+
+    private Semaphore mutex = new Semaphore(1);
+
     // BC es un tablero de Conocimientos, cada conocimiento es estado de cada
     // casilla
-    private Conocimientos[][] BC;
 
-    private boolean encontradoTesoro = false;
-    private int agenteX;
-    private int agenteY;
-    private int cont = 0; //contador de pasos
-
-    // conjutos de acciones realizado guardado en sentido inverso
-    private ArrayList<String> camino = new ArrayList<>(); 
+    private int cont = 0; // contador de pasos
 
     // Constructor
     public Agente(Datos dat, Notificar not) {
         this.dat = dat;
         this.prog = not;
         this.start = true;
-        this.delay = 200;
-
+        this.delay = 500;
+        this.N = 1;
     }
 
     // Cerebro
     public void resolver() {
-
+        Conocimientos[][] BC;
+        // conjutos de acciones realizado guardado en sentido inverso
+        ArrayList<String> camino = new ArrayList<>();
+        boolean encontradoTesoro = false;
         int percep[] = new int[5]; // [Hedor, Brisa, Resplandor, Golpe, Gemido]
-        this.agenteX = dat.getDimension() - 1;
-        this.agenteY = 0;
+        int agenteX = -1;
+        int agenteY = -1;
 
-        this.BC = new Conocimientos[dat.getDimension()][dat.getDimension()];
+        if (Thread.currentThread().equals(calculador)) {
+            agenteX = dat.getDimension() - 1;
+            agenteY = 0;
+        } else if (Thread.currentThread().equals(calculador2)) {
+            agenteX = dat.getDimension() - 1;
+            agenteY = dat.getDimension() - 1;
+        } else if (Thread.currentThread().equals(calculador3)) {
+            agenteX = 0;
+            agenteY = 0;
+        } else if (Thread.currentThread().equals(calculador4)) {
+            agenteX = 0;
+            agenteY = dat.getDimension() - 1;
+        }
+
+        BC = new Conocimientos[dat.getDimension()][dat.getDimension()];
         for (int i = 0; i < dat.getDimension(); i++) {
             for (int j = 0; j < dat.getDimension(); j++) {
                 BC[i][j] = new Conocimientos();
             }
         }
+        try {
+            while (start && !encontradoTesoro) {
 
-        while (start && !encontradoTesoro) {
-            // 1- Obtenemos el array de percepciones
-            percep = obtenerPercepciones(percep, agenteX, agenteY);
-            System.out.println(percep[0]);
+                // 1- Obtenemos el array de percepciones
+                percep = obtenerPercepciones(percep, agenteX, agenteY);
+                System.out.println(percep[0]);
 
-            // 2- Actualizar y inferir BC
-            informarBC(percep, agenteX, agenteY);
+                // 2- Actualizar y inferir BC
+                encontradoTesoro = informarBC(percep, agenteX, agenteY, BC);
 
-            // 3- Preguntar BC que acción debe hacer
-            String accion = preguntarBC(agenteX, agenteY);
-            System.out.println("accion -> " + accion);
-            // 4- Realizar dicho movimiento
-            if (accion != " ") {
-                actualizarCasillaActual(agenteX, agenteY);
-                actualizarCasillaSiguiente(agenteX, agenteY, accion);
-                prog.notificar("repaint");
-                esperar(delay);
+                // 3- Preguntar BC que acción debe hacer
+                String accion = preguntarBC(agenteX, agenteY, encontradoTesoro, camino, BC);
+                // System.out.println("accion -> " + accion);
+                // 4- Realizar dicho movimiento
+                if (accion != " ") {
+                    mutex.acquire();
+                    actualizarCasillaActual(agenteX, agenteY, encontradoTesoro);
+                    int act[] = actualizarCasillaSiguiente(agenteX, agenteY, accion, encontradoTesoro, camino);
+                    esperar(200);
+                    mutex.release();
+                    agenteX = agenteX + act[0];
+                    agenteY = agenteY + act[1];
+                    prog.notificar("repaint");
+                    esperar(delay);
+                }
+
+                // si ya encontradoTesoro hay que volver
+                if (encontradoTesoro) {
+                    for (int i = camino.size() - 1; i >= 0; i--) {
+                        accion = camino.get(i);
+                        mutex.acquire();
+                        actualizarCasillaActual(agenteX, agenteY, encontradoTesoro);
+                        int act[] = actualizarCasillaSiguiente(agenteX, agenteY, accion, encontradoTesoro, camino);
+                        esperar(200);
+                        mutex.release();
+                        agenteX = agenteX + act[0];
+                        agenteY = agenteY + act[1];
+                        prog.notificar("repaint");
+                        camino.remove(i);
+                        esperar(delay);
+                    }
+                }
             }
-
-        }
-        // si ya encontradoTesoro hay que volver
-        if (encontradoTesoro) {
-            for (int i = camino.size() - 1; i >= 0; i--) {
-                String accion = camino.get(i);
-                actualizarCasillaActual(agenteX, agenteY);
-                actualizarCasillaSiguiente(agenteX, agenteY, accion);
-                prog.notificar("repaint");
-                camino.remove(i);
-                esperar(delay);
-            }
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -143,7 +178,8 @@ public class Agente implements Notificar {
         return p;
     }
 
-    public void informarBC(int p[], int x, int y) {
+    public boolean informarBC(int p[], int x, int y, Conocimientos BC[][]) {
+        boolean encontradoTesoro = false;
         // **************** */
         // PARTE ACTUALIZAR
         // *************** */
@@ -155,18 +191,18 @@ public class Agente implements Notificar {
         if (!(BC[x][y].isVisitada())) {
             // 3- Si hay resplandor => set tesoro encontrado
             if (p[2] == 1) {
-                this.encontradoTesoro = true;
+                encontradoTesoro = true;
             } else {
                 // 4- Si tiene hedor => set las 4 casillas adyacente a possibles monstruo
                 if (p[0] == 1) {
-                    generarCreenciasHedor(x, y);
-                    //inferir si las 4 adyacentes son monstruo                    
+                    generarCreenciasHedor(x, y, BC);
+                    // inferir si las 4 adyacentes son monstruo
                 }
                 // 5- Si tiene brisa => set las 4 casillas adyacentes a possibles precipicio
                 if (p[1] == 1) {
-                    generarCreenciasBrisa(x, y);
+                    generarCreenciasBrisa(x, y, BC);
                 }
-                // 6- CASO 0: NO HAY NADA  => SET las 4 casillas adyacentes a ok
+                // 6- CASO 0: NO HAY NADA => SET las 4 casillas adyacentes a ok
                 if (p[0] == 0 && p[1] == 0) {
                     if (x > 0) {
                         BC[x - 1][y].setOk(true);
@@ -205,7 +241,8 @@ public class Agente implements Notificar {
                         BC[x][y + 1].setImposibleMonstruo(true);
                     }
 
-                // CASO 2: si hay hedor y no brisa => no puede haber precicpicios en las 4 adyacentes
+                    // CASO 2: si hay hedor y no brisa => no puede haber precicpicios en las 4
+                    // adyacentes
                 } else if (p[0] == 1 && p[1] != 1) {
                     // Arriba es posible precipicio => Contradicción
                     if (x > 0 && BC[x - 1][y].posiblePrecipicio()) {
@@ -227,38 +264,43 @@ public class Agente implements Notificar {
 
                 // CASO 3: Cuando una casilla es imposible Monstruo y imposible precipicio
                 if (x > 0) {
-                    casillaOK(x - 1, y);
+                    casillaOK(x - 1, y, BC);
                 }
                 if (x < BC.length - 1) {
-                    casillaOK(x + 1, y);
+                    casillaOK(x + 1, y, BC);
                 }
                 if (y < BC.length - 1) {
-                    casillaOK(x, y + 1);
+                    casillaOK(x, y + 1, BC);
                 }
                 if (y > 0) {
-                    casillaOK(x, y - 1);
+                    casillaOK(x, y - 1, BC);
                 }
 
             }
 
-            //monstruo ?
-            if(p[0]==1){
-                if(esDerechaMonstruo(x, y)){
-                   System.out.println("monstruoEncontrado -> " + esDerechaMonstruo(x, y) );
-                   disparar(x,y);
+            // monstruo ?
+            if (p[0] == 1) {
+                if (esDerechaMonstruo(x, y, BC)) {
+                    System.out.println("monstruoEncontrado -> " + esDerechaMonstruo(x, y, BC));
+                    disparar(x, y);
                 }
             }
 
             BC[x][y].setVisitada(true);
         }
+        return encontradoTesoro;
     }
 
-    public String preguntarBC(int x, int y) { // x fila , y columna
+    public String preguntarBC(int x, int y, boolean encontradoTesoro, ArrayList<String> camino, Conocimientos BC[][]) { // x
+                                                                                                                        // fila
+                                                                                                                        // ,
+                                                                                                                        // y
+                                                                                                                        // columna
         // Prioridad en sentido del reloj
         if (!encontradoTesoro) {
-            if(cont < BC.length * BC.length){
+            if (cont < BC.length * BC.length) {
                 cont++;
-                // sentido del reloj no visitada fist 
+                // sentido del reloj no visitada fist
                 if (x > 0 && BC[x - 1][y].isOk() && !BC[x - 1][y].isVisitada()) {
                     return "NORTE";
                 } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && !BC[x][y + 1].isVisitada()) {
@@ -268,7 +310,7 @@ public class Agente implements Notificar {
                 } else if (y > 0 && BC[x][y - 1].isOk() && !BC[x][y - 1].isVisitada()) {
                     return "OESTE";
 
-                // sentido del reloj visitada pero no repetido first 
+                    // sentido del reloj visitada pero no repetido first
                 } else if (x > 0 && BC[x - 1][y].isOk() && camino.get(camino.size() - 1) != "NORTE") {
                     return "NORTE";
                 } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && camino.get(camino.size() - 1) != "ESTE") {
@@ -278,7 +320,7 @@ public class Agente implements Notificar {
                 } else if (y > 0 && BC[x][y - 1].isOk() && camino.get(camino.size() - 1) != "OESTE") {
                     return "OESTE";
 
-                // Si ya visitadas volver a atras
+                    // Si ya visitadas volver a atras
                 } else if (x > 0 && BC[x - 1][y].isOk()) {
                     return "NORTE";
                 } else if (y < BC.length - 1 && BC[x][y + 1].isOk()) {
@@ -288,35 +330,34 @@ public class Agente implements Notificar {
                 } else if (y > 0 && BC[x][y - 1].isOk()) {
                     return "OESTE";
                 }
-            }else if (cont < BC.length* BC.length * 2){
+            } else if (cont < BC.length * BC.length * 2) {
                 cont++;
-                if(cont > BC.length* BC.length * 2){
+                if (cont > BC.length * BC.length * 2) {
                     cont = 0;
                 }
-                // sentido aleatorio no visitada fist 
+                // sentido aleatorio no visitada fist
                 if (x > 0 && BC[x - 1][y].isOk() && !BC[x - 1][y].isVisitada()) {
                     return "NORTE";
-                }else if (y > 0 && BC[x][y - 1].isOk() && !BC[x][y - 1].isVisitada()) {
+                } else if (y > 0 && BC[x][y - 1].isOk() && !BC[x][y - 1].isVisitada()) {
                     return "OESTE";
                 } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && !BC[x + 1][y].isVisitada()) {
-                    return "SUR"; 
+                    return "SUR";
                 } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && !BC[x][y + 1].isVisitada()) {
                     return "ESTE";
-                
 
-                // sentido aleatorio visitada pero no repetido first 
+                    // sentido aleatorio visitada pero no repetido first
                 } else if (x > 0 && BC[x - 1][y].isOk() && camino.get(camino.size() - 1) != "NORTE") {
                     return "NORTE";
-                }else if (y > 0 && BC[x][y - 1].isOk() && camino.get(camino.size() - 1) != "OESTE") {
+                } else if (y > 0 && BC[x][y - 1].isOk() && camino.get(camino.size() - 1) != "OESTE") {
                     return "OESTE";
-                
+
                 } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && camino.get(camino.size() - 1) != "SUR") {
                     return "SUR";
                 } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && camino.get(camino.size() - 1) != "ESTE") {
-                    return "ESTE"; 
+                    return "ESTE";
 
-                // Si ya visitadas volver a atras    
-                }else if (y > 0 && BC[x][y - 1].isOk()) {
+                    // Si ya visitadas volver a atras
+                } else if (y > 0 && BC[x][y - 1].isOk()) {
                     return "OESTE";
                 } else if (x > 0 && BC[x - 1][y].isOk()) {
                     return "NORTE";
@@ -324,22 +365,16 @@ public class Agente implements Notificar {
                     return "ESTE";
                 } else if (x < BC.length - 1 && BC[x + 1][y].isOk()) {
                     return "SUR";
-                } 
-                
+                }
+
             }
-            
-            System.out.println("HOLA NO HE HECHO ACCION!");
             return " ";
-
-            
         }
-        System.out.println("HOLA NO HE HECHO ACCION!");
         return " ";
-
     }
 
     // Actualizar casilla actual una vez eliminado el agente
-    public void actualizarCasillaActual(int x, int y) {
+    public void actualizarCasillaActual(int x, int y, boolean encontradoTesoro) {
         if (dat.getTablero()[x][y] == 4) {
             dat.getTablero()[x][y] = 0;
         } else if (dat.getTablero()[x][y] == 6) {
@@ -356,17 +391,31 @@ public class Agente implements Notificar {
             dat.getTablero()[x][y] = 9;
         } else if (dat.getTablero()[x][y] == 20) {
             dat.getTablero()[x][y] = 11;
+        } else if (dat.getTablero()[x][y] == 21) {
+            dat.getTablero()[x][y] = 4;
+        } else if (dat.getTablero()[x][y] == 22) {
+            dat.getTablero()[x][y] = 21;
+        } else if (dat.getTablero()[x][y] == 23) {
+            dat.getTablero()[x][y] = 22;
+        } else if (dat.getTablero()[x][y] == 24) {
+            dat.getTablero()[x][y] = 6;
+        } else if (dat.getTablero()[x][y] == 25) {
+            dat.getTablero()[x][y] = 4;
         }
         ;
     }
 
     // Actualizar casilla siguiente una vez agregado el agente
-    public void actualizarCasillaSiguiente(int x, int y, String accion) {
+    public int[] actualizarCasillaSiguiente(int x, int y, String accion, boolean encontradoTesoro,
+            ArrayList<String> camino) {
+        int ret[] = new int[2];
+        ret[0] = 0;
+        ret[1] = 0;
         switch (accion) {
             case "NORTE":
-                this.agenteX--;
+                ret[0] = -1;
                 if (!encontradoTesoro) {
-                    this.camino.add("SUR"); // añadir accion inversa
+                    camino.add("SUR"); // añadir accion inversa
                     if (dat.getTablero()[x - 1][y] == 0) {
                         dat.getTablero()[x - 1][y] = 4;
                     } else if (dat.getTablero()[x - 1][y] == 8) {
@@ -383,6 +432,18 @@ public class Agente implements Notificar {
                         dat.getTablero()[x - 1][y] = 19;
                     } else if (dat.getTablero()[x - 1][y] == 14) {
                         dat.getTablero()[x - 1][y] = 20;
+                    } else if (dat.getTablero()[x - 1][y] == 4) {
+                        // Tenemos 2 agentes en la misma casilla
+                        dat.getTablero()[x - 1][y] = 21;
+                    } else if (dat.getTablero()[x - 1][y] == 21) {
+                        // Tenemos 3 agentes en la misma casilla
+                        dat.getTablero()[x - 1][y] = 22;
+                    } else if (dat.getTablero()[x - 1][y] == 22) {
+                        // Tenemos 4 agentes en la misma casilla
+                        dat.getTablero()[x - 1][y] = 23;
+                    } else if (dat.getTablero()[x - 1][y] == 6) {
+                        // Pasa por encima de un agente con tesoro
+                        dat.getTablero()[x - 1][y] = 24;
                     }
                 } else {
                     if (dat.getTablero()[x - 1][y] == 0) {
@@ -401,13 +462,25 @@ public class Agente implements Notificar {
                         dat.getTablero()[x - 1][y] = 19;
                     } else if (dat.getTablero()[x - 1][y] == 14) {
                         dat.getTablero()[x - 1][y] = 20;
+                    } else if (dat.getTablero()[x - 1][y] == 4) {
+                        // Tenemos 2 agentes en la misma casilla
+                        dat.getTablero()[x - 1][y] = 21;
+                    } else if (dat.getTablero()[x - 1][y] == 21) {
+                        // Tenemos 3 agentes en la misma casilla
+                        dat.getTablero()[x - 1][y] = 22;
+                    } else if (dat.getTablero()[x - 1][y] == 22) {
+                        // Tenemos 4 agentes en la misma casilla
+                        dat.getTablero()[x - 1][y] = 23;
+                    } else if (dat.getTablero()[x - 1][y] == 6) {
+                        // Pasa por encima de un agente con tesoro teniendo el tesoro
+                        dat.getTablero()[x - 1][y] = 25;
                     }
                 }
                 break;
             case "ESTE":
-                this.agenteY++;
+                ret[1] = 1;
                 if (!encontradoTesoro) {
-                    this.camino.add("OESTE"); // añadir accion inversa
+                    camino.add("OESTE"); // añadir accion inversa
                     if (dat.getTablero()[x][y + 1] == 0) {
                         dat.getTablero()[x][y + 1] = 4;
                     } else if (dat.getTablero()[x][y + 1] == 8) {
@@ -424,6 +497,18 @@ public class Agente implements Notificar {
                         dat.getTablero()[x][y + 1] = 19;
                     } else if (dat.getTablero()[x][y + 1] == 14) {
                         dat.getTablero()[x][y + 1] = 20;
+                    } else if (dat.getTablero()[x][y + 1] == 4) {
+                        // Tenemos 2 agentes en la misma casilla
+                        dat.getTablero()[x][y + 1] = 21;
+                    } else if (dat.getTablero()[x][y + 1] == 21) {
+                        // Tenemos 3 agentes en la misma casilla
+                        dat.getTablero()[x][y + 1] = 22;
+                    } else if (dat.getTablero()[x][y + 1] == 22) {
+                        // Tenemos 4 agentes en la misma casilla
+                        dat.getTablero()[x][y + 1] = 23;
+                    } else if (dat.getTablero()[x][y + 1] == 6) {
+                        // Pasa por encima de un agente con tesoro
+                        dat.getTablero()[x][y + 1] = 24;
                     }
                 } else {
                     if (dat.getTablero()[x][y + 1] == 0) {
@@ -442,13 +527,25 @@ public class Agente implements Notificar {
                         dat.getTablero()[x][y + 1] = 19;
                     } else if (dat.getTablero()[x][y + 1] == 14) {
                         dat.getTablero()[x][y + 1] = 20;
+                    } else if (dat.getTablero()[x][y + 1] == 4) {
+                        // Tenemos 2 agentes en la misma casilla
+                        dat.getTablero()[x][y + 1] = 21;
+                    } else if (dat.getTablero()[x][y + 1] == 21) {
+                        // Tenemos 3 agentes en la misma casilla
+                        dat.getTablero()[x][y + 1] = 22;
+                    } else if (dat.getTablero()[x][y + 1] == 22) {
+                        // Tenemos 4 agentes en la misma casilla
+                        dat.getTablero()[x][y + 1] = 23;
+                    } else if (dat.getTablero()[x][y + 1] == 6) {
+                        // Pasa por encima de un agente con tesoro
+                        dat.getTablero()[x][y + 1] = 25;
                     }
                 }
                 break;
             case "SUR":
-                this.agenteX++;
+                ret[0] = 1;
                 if (!encontradoTesoro) {
-                    this.camino.add("NORTE"); // añadir accion inversa
+                    camino.add("NORTE"); // añadir accion inversa
                     if (dat.getTablero()[x + 1][y] == 0) {
                         dat.getTablero()[x + 1][y] = 4;
                     } else if (dat.getTablero()[x + 1][y] == 8) {
@@ -465,6 +562,18 @@ public class Agente implements Notificar {
                         dat.getTablero()[x + 1][y] = 19;
                     } else if (dat.getTablero()[x + 1][y] == 14) {
                         dat.getTablero()[x + 1][y] = 20;
+                    } else if (dat.getTablero()[x + 1][y] == 4) {
+                        // Tenemos 2 agentes en la misma casilla
+                        dat.getTablero()[x + 1][y] = 21;
+                    } else if (dat.getTablero()[x + 1][y] == 21) {
+                        // Tenemos 3 agentes en la misma casilla
+                        dat.getTablero()[x + 1][y] = 22;
+                    } else if (dat.getTablero()[x + 1][y] == 22) {
+                        // Tenemos 4 agentes en la misma casilla
+                        dat.getTablero()[x + 1][y] = 23;
+                    } else if (dat.getTablero()[x + 1][y] == 6) {
+                        // Pasa por encima de un agente con tesoro
+                        dat.getTablero()[x + 1][y] = 24;
                     }
                 } else {
                     if (dat.getTablero()[x + 1][y] == 0) {
@@ -483,13 +592,25 @@ public class Agente implements Notificar {
                         dat.getTablero()[x + 1][y] = 19;
                     } else if (dat.getTablero()[x + 1][y] == 14) {
                         dat.getTablero()[x + 1][y] = 20;
+                    } else if (dat.getTablero()[x + 1][y] == 4) {
+                        // Tenemos 2 agentes en la misma casilla
+                        dat.getTablero()[x + 1][y] = 21;
+                    } else if (dat.getTablero()[x + 1][y] == 21) {
+                        // Tenemos 3 agentes en la misma casilla
+                        dat.getTablero()[x + 1][y] = 22;
+                    } else if (dat.getTablero()[x + 1][y] == 22) {
+                        // Tenemos 4 agentes en la misma casilla
+                        dat.getTablero()[x + 1][y] = 23;
+                    } else if (dat.getTablero()[x + 1][y] == 6) {
+                        // Pasa por encima de un agente con tesoro
+                        dat.getTablero()[x + 1][y] = 25;
                     }
                 }
                 break;
             case "OESTE":
-                this.agenteY--;
+                ret[1] = -1;
                 if (!encontradoTesoro) {
-                    this.camino.add("ESTE"); // añadir accion inversa
+                    camino.add("ESTE"); // añadir accion inversa
                     if (dat.getTablero()[x][y - 1] == 0) {
                         dat.getTablero()[x][y - 1] = 4;
                     } else if (dat.getTablero()[x][y - 1] == 8) {
@@ -506,6 +627,18 @@ public class Agente implements Notificar {
                         dat.getTablero()[x][y - 1] = 19;
                     } else if (dat.getTablero()[x][y - 1] == 14) {
                         dat.getTablero()[x][y - 1] = 20;
+                    } else if (dat.getTablero()[x][y - 1] == 4) {
+                        // Tenemos 2 agentes en la misma casilla
+                        dat.getTablero()[x][y - 1] = 21;
+                    } else if (dat.getTablero()[x][y - 1] == 21) {
+                        // Tenemos 3 agentes en la misma casilla
+                        dat.getTablero()[x][y - 1] = 22;
+                    } else if (dat.getTablero()[x][y - 1] == 22) {
+                        // Tenemos 4 agentes en la misma casilla
+                        dat.getTablero()[x][y - 1] = 23;
+                    } else if (dat.getTablero()[x][y - 1] == 6) {
+                        // Pasa por encima de un agente con tesoro
+                        dat.getTablero()[x][y - 1] = 24;
                     }
                 } else {
                     if (dat.getTablero()[x][y - 1] == 0) {
@@ -524,15 +657,29 @@ public class Agente implements Notificar {
                         dat.getTablero()[x][y - 1] = 19;
                     } else if (dat.getTablero()[x][y - 1] == 14) {
                         dat.getTablero()[x][y - 1] = 20;
+                    } else if (dat.getTablero()[x][y - 1] == 4) {
+                        // Tenemos 2 agentes en la misma casilla
+                        dat.getTablero()[x][y - 1] = 21;
+                    } else if (dat.getTablero()[x][y - 1] == 21) {
+                        // Tenemos 3 agentes en la misma casilla
+                        dat.getTablero()[x][y - 1] = 22;
+                    } else if (dat.getTablero()[x][y - 1] == 22) {
+                        // Tenemos 4 agentes en la misma casilla
+                        dat.getTablero()[x][y - 1] = 23;
+                    }  else if (dat.getTablero()[x][y-1] == 6) {
+                        // Pasa por encima de un agente con tesoro teniendo el tesoro
+                        dat.getTablero()[x][y-1] = 25;
                     }
                 }
                 break;
             default:
                 break;
+
         }
+        return ret;
     }
 
-    public void casillaOK(int x, int y) {
+    public void casillaOK(int x, int y, Conocimientos BC[][]) {
 
         if (BC[x][y].imposiblePrecipicio() &&
                 BC[x][y].imposibleMonstruo()) {
@@ -541,7 +688,7 @@ public class Agente implements Notificar {
         }
     }
 
-    public void generarCreenciasBrisa(int agenteX, int agenteY) {
+    public void generarCreenciasBrisa(int agenteX, int agenteY, Conocimientos BC[][]) {
         // Posibles precipicios (hay que mirar si esta dentro del trablero)
         BC[agenteX][agenteY].setBrisa(true);
 
@@ -570,7 +717,7 @@ public class Agente implements Notificar {
         }
     }
 
-    public void generarCreenciasHedor(int agenteX, int agenteY) {
+    public void generarCreenciasHedor(int agenteX, int agenteY, Conocimientos BC[][]) {
         // Posibles monstruos (hay que mirar si esta dentro del trablero)
         BC[agenteX][agenteY].setHedor(true);
 
@@ -599,8 +746,8 @@ public class Agente implements Notificar {
         }
     }
 
-    public boolean esDerechaMonstruo(int x, int y){
-        int cont=0;
+    public boolean esDerechaMonstruo(int x, int y, Conocimientos BC[][]) {
+        int cont = 0;
         try {
             if (BC[x][y - 1].isOk()) {
                 cont++;
@@ -618,7 +765,7 @@ public class Agente implements Notificar {
         }
 
         try {
-            if (BC[x+2][y+1].isOk()) {
+            if (BC[x + 2][y + 1].isOk()) {
                 cont++;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -626,7 +773,7 @@ public class Agente implements Notificar {
         }
 
         try {
-            if (BC[x - 2][y+1].isOk()) {
+            if (BC[x - 2][y + 1].isOk()) {
                 cont++;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -634,7 +781,7 @@ public class Agente implements Notificar {
         }
 
         try {
-            if (BC[x-1][y].isOk()) {
+            if (BC[x - 1][y].isOk()) {
                 cont++;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -642,7 +789,7 @@ public class Agente implements Notificar {
         }
 
         try {
-            if (BC[x+1][y].isOk()) {
+            if (BC[x + 1][y].isOk()) {
                 cont++;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -650,7 +797,7 @@ public class Agente implements Notificar {
         }
 
         try {
-            if (BC[x-1][y+2].isOk()) {
+            if (BC[x - 1][y + 2].isOk()) {
                 cont++;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -658,33 +805,33 @@ public class Agente implements Notificar {
         }
 
         try {
-            if (BC[x+1 ][y+2].isOk()) {
+            if (BC[x + 1][y + 2].isOk()) {
                 cont++;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             cont++;
         }
 
-        if(cont==8){
+        if (cont == 8) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
     // Disparar hacia derecha
-    public void disparar(int x, int y ) {
-       //matar monstruo
-        int aux = dat.getTablero()[x][y]; //casilla actual
+    public void disparar(int x, int y) {
+        // matar monstruo
+        int aux = dat.getTablero()[x][y]; // casilla actual
         dat.getTablero()[x][y] = 3; // dispararImage
         prog.notificar("repaint");
         esperar(1000);
 
-        dat.getTablero()[x][y+1] = 2; //asignar al tablero monstruo muerto
+        dat.getTablero()[x][y + 1] = 2; // asignar al tablero monstruo muerto
         dat.getTablero()[x][y] = aux;
         prog.notificar("repaint");
         esperar(1000);
-        
+
     }
 
     public void esperar(int time) {
@@ -704,14 +851,72 @@ public class Agente implements Notificar {
         return valor;
     }
 
+    public void pintarAgenteCorrespondiente() {
+        switch (N) {
+            case 1:
+                dat.colocarAgente(1);
+                dat.quitarAgente(2);
+                dat.quitarAgente(3);
+                dat.quitarAgente(4);
+                prog.notificar("repaint");
+                break;
+            case 2:
+                dat.colocarAgente(1);
+                dat.colocarAgente(2);
+                dat.quitarAgente(3);
+                dat.quitarAgente(4);
+                prog.notificar("repaint");
+                break;
+            case 3:
+                dat.colocarAgente(1);
+                dat.colocarAgente(2);
+                dat.colocarAgente(3);
+                dat.quitarAgente(4);
+                prog.notificar("repaint");
+                break;
+            case 4:
+                dat.colocarAgente(1);
+                dat.colocarAgente(2);
+                dat.colocarAgente(3);
+                dat.colocarAgente(4);
+                prog.notificar("repaint");
+                break;
+            default:
+                if (N < 1) {
+                    N = 1;
+                } else if (N > 4) {
+                    N = 4;
+                }
+                break;
+        }
+    }
+
     @Override
     public void notificar(String s) {
 
         switch (s) {
             case "START":
                 start = true;
-                ProcesoResolver calculador = new ProcesoResolver(this);
-                calculador.start();
+                switch (N) {
+                    case 1:
+                        calculador.start();
+                        break;
+                    case 2:
+                        calculador.start();
+                        calculador2.start();
+                        break;
+                    case 3:
+                        calculador.start();
+                        calculador2.start();
+                        calculador3.start();
+                        break;
+                    case 4:
+                        calculador.start();
+                        calculador2.start();
+                        calculador3.start();
+                        calculador4.start();
+                        break;
+                }
                 break;
             case "STOP":
                 start = false;
@@ -723,6 +928,14 @@ public class Agente implements Notificar {
                 break;
             case "downVelocidad": // velocidad--
                 this.delay = this.delay + 50;
+                break;
+            case "upAG": // agente++
+                N++;
+                pintarAgenteCorrespondiente();
+                break;
+            case "downAG": // agente--
+                N--;
+                pintarAgenteCorrespondiente();
                 break;
         }
     }

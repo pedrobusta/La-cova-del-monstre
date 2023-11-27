@@ -55,6 +55,12 @@ public class App implements Notificar {
                 case "downVelocidad": // velocidad--
                     con.notificar("downVelocidad");
                     break;
+                case "upAG": // agente++
+                    con.notificar("upAG");
+                    break;
+                case "downAG": // agente--
+                    con.notificar("downAG");
+                    break;
                 default:
                     break;
             }

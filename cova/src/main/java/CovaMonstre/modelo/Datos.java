@@ -42,6 +42,41 @@ public class Datos {
         tablero[dimension-1][0] = 4;
     }
     
+    public void colocarAgente(int ag){
+        switch (ag) {
+            case 1:
+                tablero[dimension-1][0] = 4;
+                break;
+            case 2:
+                tablero[dimension-1][dimension-1] = 4;
+                break;
+            case 3:
+                tablero[0][0] = 4;
+                break;
+            case 4:
+                tablero[0][dimension-1] = 4;
+                break;
+        }
+    }
+
+     public void quitarAgente(int ag){
+        switch (ag) {
+            case 1:
+                tablero[dimension-1][0] = 0;
+                break;
+            case 2:
+                tablero[dimension-1][dimension-1] = 0;
+                break;
+            case 3:
+                tablero[0][0] = 0;
+                break;
+            case 4:
+                tablero[0][dimension-1] = 0;
+                break;
+        }
+    }
+
+
     public int getDimension() {
         return dimension;
     }

@@ -25,7 +25,7 @@ public class PanelCentral extends JPanel {
     private int modo = 0; // 0-nada , 1-pared, 2-robot
 
     private BufferedImage textureImage;
-    private BufferedImage robotImage, paredImage, mounstruoImage, monstruoMuertoImage,agenteImage,
+    private BufferedImage robotImage, paredImage, mounstruoImage, monstruoMuertoImage, agenteImage,
             precipicioImage, tesoroImage, hedorImage, brisaImage, dispararImage,
             hedorBrisaImage, hedorTesoroImage, brisaTesoroImage,
             hedorBrisaTesoroImage,
@@ -35,7 +35,8 @@ public class PanelCentral extends JPanel {
             agenteHedorBrisaImage,
             agenteTesoroBrisaImage,
             agenteTesoroHedorImage,
-            agenteTesoroHedorBrisaImage;
+            agenteTesoroHedorBrisaImage,
+            dosAgentes, tresAgentes, cuatroAgentes, dosAgentesTesoro;
 
     private int filaGlobal;
     private int columnaGlobal;
@@ -50,6 +51,10 @@ public class PanelCentral extends JPanel {
             paredImage = ImageIO.read(getClass().getResource("../imagenes/ladrillo.jpg"));
 
             agenteImage = ImageIO.read(getClass().getResource("../imagenes/agenteFlecha.png"));
+            dosAgentes = ImageIO.read(getClass().getResource("../imagenes/dosAgentes.png"));
+            dosAgentesTesoro = ImageIO.read(getClass().getResource("../imagenes/dosAgentesTesoro.png"));
+            tresAgentes = ImageIO.read(getClass().getResource("../imagenes/tresAgentes.png"));
+            cuatroAgentes = ImageIO.read(getClass().getResource("../imagenes/cuatroAgentes.png"));
             dispararImage = ImageIO.read(getClass().getResource("../imagenes/disparar.png"));
             mounstruoImage = ImageIO.read(getClass().getResource("../imagenes/monstruo.png"));
             monstruoMuertoImage = ImageIO.read(getClass().getResource("../imagenes/monstruoMuerto.png"));
@@ -276,6 +281,113 @@ public class PanelCentral extends JPanel {
                     g.drawImage(mounstruoImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
 
                     // dibujar agente
+                } else if (tablero[fila][columna] == 24) {
+                    g.setComposite(opacidad2);
+                    // Crear una transformación para rotar la imagen 90 grados
+                    AffineTransform at = new AffineTransform();
+
+                    switch (dat.getDir()) {
+                        case (2): // derecha
+                            at.rotate(Math.toRadians(90), x + anchoCelda / 2.0, y + altoCelda / 2.0);
+                            break;
+                        case (3): // abajo
+                            at.rotate(Math.toRadians(180), x + anchoCelda / 2.0, y + altoCelda / 2.0);
+                            break;
+                        case (4): // izquierda
+                            at.rotate(Math.toRadians(270), x + anchoCelda / 2.0, y + altoCelda / 2.0);
+                            break;
+                        default:
+                            break;
+                    }
+                    // Aplicar la transformación antes de dibujar la imagen
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setTransform(at);
+                    // Dibujar la imagen rotada
+                    g2d.drawImage(dosAgentesTesoro, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                    // Restaurar la transformación para evitar que afecte a otras operaciones de
+                    // dibujo
+                    g2d.setTransform(new AffineTransform());
+                } else if (tablero[fila][columna] == 21) {
+                    g.setComposite(opacidad2);
+                    // Crear una transformación para rotar la imagen 90 grados
+                    AffineTransform at = new AffineTransform();
+
+                    switch (dat.getDir()) {
+                        case (2): // derecha
+                            at.rotate(Math.toRadians(90), x + anchoCelda / 2.0, y + altoCelda / 2.0);
+                            break;
+                        case (3): // abajo
+                            at.rotate(Math.toRadians(180), x + anchoCelda / 2.0, y + altoCelda / 2.0);
+                            break;
+                        case (4): // izquierda
+                            at.rotate(Math.toRadians(270), x + anchoCelda / 2.0, y + altoCelda / 2.0);
+                            break;
+                        default:
+                            break;
+                    }
+                    // Aplicar la transformación antes de dibujar la imagen
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setTransform(at);
+                    // Dibujar la imagen rotada
+                    g2d.drawImage(dosAgentes, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                    // Restaurar la transformación para evitar que afecte a otras operaciones de
+                    // dibujo
+                    g2d.setTransform(new AffineTransform());
+
+                } else if (tablero[fila][columna] == 22) {
+                    g.setComposite(opacidad2);
+                    // Crear una transformación para rotar la imagen 90 grados
+                    AffineTransform at = new AffineTransform();
+
+                    switch (dat.getDir()) {
+                        case (2): // derecha
+                            at.rotate(Math.toRadians(90), x + anchoCelda / 2.0, y + altoCelda / 2.0);
+                            break;
+                        case (3): // abajo
+                            at.rotate(Math.toRadians(180), x + anchoCelda / 2.0, y + altoCelda / 2.0);
+                            break;
+                        case (4): // izquierda
+                            at.rotate(Math.toRadians(270), x + anchoCelda / 2.0, y + altoCelda / 2.0);
+                            break;
+                        default:
+                            break;
+                    }
+                    // Aplicar la transformación antes de dibujar la imagen
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setTransform(at);
+                    // Dibujar la imagen rotada
+                    g2d.drawImage(tresAgentes, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                    // Restaurar la transformación para evitar que afecte a otras operaciones de
+                    // dibujo
+                    g2d.setTransform(new AffineTransform());
+
+                } else if (tablero[fila][columna] == 23) {
+                    g.setComposite(opacidad2);
+                    // Crear una transformación para rotar la imagen 90 grados
+                    AffineTransform at = new AffineTransform();
+
+                    switch (dat.getDir()) {
+                        case (2): // derecha
+                            at.rotate(Math.toRadians(90), x + anchoCelda / 2.0, y + altoCelda / 2.0);
+                            break;
+                        case (3): // abajo
+                            at.rotate(Math.toRadians(180), x + anchoCelda / 2.0, y + altoCelda / 2.0);
+                            break;
+                        case (4): // izquierda
+                            at.rotate(Math.toRadians(270), x + anchoCelda / 2.0, y + altoCelda / 2.0);
+                            break;
+                        default:
+                            break;
+                    }
+                    // Aplicar la transformación antes de dibujar la imagen
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setTransform(at);
+                    // Dibujar la imagen rotada
+                    g2d.drawImage(cuatroAgentes, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
+                    // Restaurar la transformación para evitar que afecte a otras operaciones de
+                    // dibujo
+                    g2d.setTransform(new AffineTransform());
+
                 } else if (tablero[fila][columna] == 4) {
                     g.setComposite(opacidad2);
                     // Crear una transformación para rotar la imagen 90 grados
@@ -372,12 +484,12 @@ public class PanelCentral extends JPanel {
                     g.drawImage(agenteTesoroHedorBrisaImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
                 }
                 // Monstruo muerto
-                else if (tablero[fila][columna] == 2){
+                else if (tablero[fila][columna] == 2) {
                     g.setComposite(opacidad2);
                     g.drawImage(monstruoMuertoImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
                 }
                 // Agente disparar
-                else if (tablero[fila][columna] == 3){
+                else if (tablero[fila][columna] == 3) {
                     g.setComposite(opacidad2);
                     g.drawImage(dispararImage, x + 1, y + 1, anchoCelda - 1, altoCelda - 1, null);
                 }
