@@ -82,7 +82,7 @@ public class Agente implements Notificar {
 
                 // 1- Obtenemos el array de percepciones
                 percep = obtenerPercepciones(percep, agenteX, agenteY);
-                System.out.println(percep[0]);
+                //System.out.println(percep[0]);
 
                 // 2- Actualizar y inferir BC
                 encontradoTesoro = informarBC(percep, agenteX, agenteY, BC);
@@ -96,12 +96,13 @@ public class Agente implements Notificar {
                     actualizarCasillaActual(agenteX, agenteY, encontradoTesoro);
                     int act[] = actualizarCasillaSiguiente(agenteX, agenteY, accion, encontradoTesoro, camino);
                     esperar(200);
-                    mutex.release();
                     agenteX = agenteX + act[0];
                     agenteY = agenteY + act[1];
                     prog.notificar("repaint");
                     esperar(delay);
+                    mutex.release();
                 }
+                esperar(50);
 
                 // si ya encontradoTesoro hay que volver
                 if (encontradoTesoro) {
@@ -111,13 +112,16 @@ public class Agente implements Notificar {
                         actualizarCasillaActual(agenteX, agenteY, encontradoTesoro);
                         int act[] = actualizarCasillaSiguiente(agenteX, agenteY, accion, encontradoTesoro, camino);
                         esperar(200);
-                        mutex.release();
                         agenteX = agenteX + act[0];
                         agenteY = agenteY + act[1];
                         prog.notificar("repaint");
                         camino.remove(i);
                         esperar(delay);
+                        mutex.release();
                     }
+                    //Setear que he llegado al final
+                    dat.getTablero()[agenteX][agenteY] = 100;
+                    
                 }
             }
             Thread.currentThread().join();
@@ -400,6 +404,7 @@ public class Agente implements Notificar {
         } else if (dat.getTablero()[x][y] == 24) {
             dat.getTablero()[x][y] = 6;
         } else if (dat.getTablero()[x][y] == 25) {
+
             dat.getTablero()[x][y] = 4;
         }
         ;
@@ -666,9 +671,9 @@ public class Agente implements Notificar {
                     } else if (dat.getTablero()[x][y - 1] == 22) {
                         // Tenemos 4 agentes en la misma casilla
                         dat.getTablero()[x][y - 1] = 23;
-                    }  else if (dat.getTablero()[x][y-1] == 6) {
+                    } else if (dat.getTablero()[x][y - 1] == 6) {
                         // Pasa por encima de un agente con tesoro teniendo el tesoro
-                        dat.getTablero()[x][y-1] = 25;
+                        dat.getTablero()[x][y - 1] = 25;
                     }
                 }
                 break;
