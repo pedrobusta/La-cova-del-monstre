@@ -756,29 +756,29 @@ public class Agente implements Notificar {
             cont++;
         }
 
-        try {
-            if (BC[x][y + 3].isOk()) {
-                cont++;
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            cont++;
-        }
+        // try {
+        //     if (BC[x][y + 3].isOk()) {
+        //         cont++;
+        //     }
+        // } catch (ArrayIndexOutOfBoundsException e) {
+        //     cont++;
+        // }
 
-        try {
-            if (BC[x + 2][y + 1].isOk()) {
-                cont++;
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            cont++;
-        }
+        // try {
+        //     if (BC[x + 2][y + 1].isOk()) {
+        //         cont++;
+        //     }
+        // } catch (ArrayIndexOutOfBoundsException e) {
+        //     cont++;
+        // }
 
-        try {
-            if (BC[x - 2][y + 1].isOk()) {
-                cont++;
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            cont++;
-        }
+        // try {
+        //     if (BC[x - 2][y + 1].isOk()) {
+        //         cont++;
+        //     }
+        // } catch (ArrayIndexOutOfBoundsException e) {
+        //     cont++;
+        // }
 
         try {
             if (BC[x - 1][y].isOk()) {
@@ -796,23 +796,23 @@ public class Agente implements Notificar {
             cont++;
         }
 
-        try {
-            if (BC[x - 1][y + 2].isOk()) {
-                cont++;
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            cont++;
-        }
+        // try {
+        //     if (BC[x - 1][y + 2].isOk()) {
+        //         cont++;
+        //     }
+        // } catch (ArrayIndexOutOfBoundsException e) {
+        //     cont++;
+        // }
 
-        try {
-            if (BC[x + 1][y + 2].isOk()) {
-                cont++;
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            cont++;
-        }
+        // try {
+        //     if (BC[x + 1][y + 2].isOk()) {
+        //         cont++;
+        //     }
+        // } catch (ArrayIndexOutOfBoundsException e) {
+        //     cont++;
+        // }
 
-        if (cont == 8) {
+        if (cont == 3) {
             return true;
         } else {
             return false;
