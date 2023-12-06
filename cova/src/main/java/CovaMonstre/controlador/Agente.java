@@ -1,6 +1,7 @@
 package CovaMonstre.controlador;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 /*
@@ -82,7 +83,7 @@ public class Agente implements Notificar {
 
                 // 1- Obtenemos el array de percepciones
                 percep = obtenerPercepciones(percep, agenteX, agenteY);
-                //System.out.println(percep[0]);
+                // System.out.println(percep[0]);
 
                 // 2- Actualizar y inferir BC
                 encontradoTesoro = informarBC(percep, agenteX, agenteY, BC);
@@ -95,14 +96,14 @@ public class Agente implements Notificar {
                     mutex.acquire();
                     actualizarCasillaActual(agenteX, agenteY, encontradoTesoro);
                     int act[] = actualizarCasillaSiguiente(agenteX, agenteY, accion, encontradoTesoro, camino);
-                    esperar(200);
+                    esperar(10);
                     agenteX = agenteX + act[0];
                     agenteY = agenteY + act[1];
                     prog.notificar("repaint");
                     esperar(delay);
                     mutex.release();
                 }
-                esperar(50);
+                esperar(1);
 
                 // si ya encontradoTesoro hay que volver
                 if (encontradoTesoro) {
@@ -111,7 +112,7 @@ public class Agente implements Notificar {
                         mutex.acquire();
                         actualizarCasillaActual(agenteX, agenteY, encontradoTesoro);
                         int act[] = actualizarCasillaSiguiente(agenteX, agenteY, accion, encontradoTesoro, camino);
-                        esperar(200);
+                        esperar(10);
                         agenteX = agenteX + act[0];
                         agenteY = agenteY + act[1];
                         prog.notificar("repaint");
@@ -119,9 +120,9 @@ public class Agente implements Notificar {
                         esperar(delay);
                         mutex.release();
                     }
-                    //Setear que he llegado al final
+                    // Setear que he llegado al final
                     dat.getTablero()[agenteX][agenteY] = 100;
-                    
+
                 }
             }
             Thread.currentThread().join();
@@ -314,7 +315,7 @@ public class Agente implements Notificar {
                 } else if (y > 0 && BC[x][y - 1].isOk() && !BC[x][y - 1].isVisitada()) {
                     return "OESTE";
 
-                    // sentido del reloj visitada pero no repetido first
+                // sentido del reloj visitada pero no repetido first
                 } else if (x > 0 && BC[x - 1][y].isOk() && camino.get(camino.size() - 1) != "NORTE") {
                     return "NORTE";
                 } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && camino.get(camino.size() - 1) != "ESTE") {
@@ -324,7 +325,7 @@ public class Agente implements Notificar {
                 } else if (y > 0 && BC[x][y - 1].isOk() && camino.get(camino.size() - 1) != "OESTE") {
                     return "OESTE";
 
-                    // Si ya visitadas volver a atras
+                // Si ya visitadas volver a atras
                 } else if (x > 0 && BC[x - 1][y].isOk()) {
                     return "NORTE";
                 } else if (y < BC.length - 1 && BC[x][y + 1].isOk()) {
@@ -334,11 +335,10 @@ public class Agente implements Notificar {
                 } else if (y > 0 && BC[x][y - 1].isOk()) {
                     return "OESTE";
                 }
-            } else if (cont < BC.length * BC.length * 2) {
+            
+            } else if (cont <= BC.length * BC.length * 2) {
                 cont++;
-                if (cont > BC.length * BC.length * 2) {
-                    cont = 0;
-                }
+                
                 // sentido aleatorio no visitada fist
                 if (x > 0 && BC[x - 1][y].isOk() && !BC[x - 1][y].isVisitada()) {
                     return "NORTE";
@@ -349,18 +349,17 @@ public class Agente implements Notificar {
                 } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && !BC[x][y + 1].isVisitada()) {
                     return "ESTE";
 
-                    // sentido aleatorio visitada pero no repetido first
+                // sentido aleatorio visitada pero no repetido first
                 } else if (x > 0 && BC[x - 1][y].isOk() && camino.get(camino.size() - 1) != "NORTE") {
                     return "NORTE";
                 } else if (y > 0 && BC[x][y - 1].isOk() && camino.get(camino.size() - 1) != "OESTE") {
                     return "OESTE";
-
                 } else if (x < BC.length - 1 && BC[x + 1][y].isOk() && camino.get(camino.size() - 1) != "SUR") {
                     return "SUR";
                 } else if (y < BC.length - 1 && BC[x][y + 1].isOk() && camino.get(camino.size() - 1) != "ESTE") {
                     return "ESTE";
 
-                    // Si ya visitadas volver a atras
+                // Si ya visitadas volver a atras
                 } else if (y > 0 && BC[x][y - 1].isOk()) {
                     return "OESTE";
                 } else if (x > 0 && BC[x - 1][y].isOk()) {
@@ -371,8 +370,38 @@ public class Agente implements Notificar {
                     return "SUR";
                 }
 
+            } else if (cont <= BC.length * BC.length * 2 + 50) {
+                cont++;
+                if (cont > BC.length * BC.length * 2 + 50) {
+                    cont = 0;
+                }
+
+                // Crear un ArrayList de String
+                ArrayList<String> acciones = new ArrayList<>();
+
+                // Verificar las condiciones y añadir a la lista de acciones
+                if (y > 0 && BC[x][y - 1].isOk()) {
+                    acciones.add("OESTE");
+                }
+                if (x > 0 && BC[x - 1][y].isOk()) {
+                    acciones.add("NORTE");
+                } 
+                if (y < BC.length - 1 && BC[x][y + 1].isOk()) {
+                    acciones.add("ESTE");
+                }
+                if (x < BC.length - 1 && BC[x + 1][y].isOk()) {
+                    acciones.add("SUR");
+                }
+
+                if (!acciones.isEmpty()) {
+                    System.out.println("randooooooooo");
+                    Random random = new Random();
+                    int indiceAleatorio = random.nextInt(acciones.size());
+                    String accionSeleccionada = acciones.get(indiceAleatorio);
+                    return accionSeleccionada;
+                }
+
             }
-            return " ";
         }
         return " ";
     }
@@ -761,30 +790,6 @@ public class Agente implements Notificar {
             cont++;
         }
 
-        // try {
-        //     if (BC[x][y + 3].isOk()) {
-        //         cont++;
-        //     }
-        // } catch (ArrayIndexOutOfBoundsException e) {
-        //     cont++;
-        // }
-
-        // try {
-        //     if (BC[x + 2][y + 1].isOk()) {
-        //         cont++;
-        //     }
-        // } catch (ArrayIndexOutOfBoundsException e) {
-        //     cont++;
-        // }
-
-        // try {
-        //     if (BC[x - 2][y + 1].isOk()) {
-        //         cont++;
-        //     }
-        // } catch (ArrayIndexOutOfBoundsException e) {
-        //     cont++;
-        // }
-
         try {
             if (BC[x - 1][y].isOk()) {
                 cont++;
@@ -801,22 +806,6 @@ public class Agente implements Notificar {
             cont++;
         }
 
-        // try {
-        //     if (BC[x - 1][y + 2].isOk()) {
-        //         cont++;
-        //     }
-        // } catch (ArrayIndexOutOfBoundsException e) {
-        //     cont++;
-        // }
-
-        // try {
-        //     if (BC[x + 1][y + 2].isOk()) {
-        //         cont++;
-        //     }
-        // } catch (ArrayIndexOutOfBoundsException e) {
-        //     cont++;
-        // }
-
         if (cont == 3) {
             return true;
         } else {
@@ -830,12 +819,12 @@ public class Agente implements Notificar {
         int aux = dat.getTablero()[x][y]; // casilla actual
         dat.getTablero()[x][y] = 3; // dispararImage
         prog.notificar("repaint");
-        esperar(1000);
+        esperar(500);
 
         dat.getTablero()[x][y + 1] = 2; // asignar al tablero monstruo muerto
         dat.getTablero()[x][y] = aux;
         prog.notificar("repaint");
-        esperar(1000);
+        esperar(500);
 
     }
 
@@ -898,7 +887,6 @@ public class Agente implements Notificar {
 
     @Override
     public void notificar(String s) {
-
         switch (s) {
             case "START":
                 start = true;
