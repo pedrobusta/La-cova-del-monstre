@@ -46,7 +46,7 @@ public class PanelCentral extends JPanel {
         this.tablero = dat.getTablero();
 
         try {
-            textureImage = ImageIO.read(getClass().getResource("../imagenes/texturaMarmol1.jpg"));
+            textureImage = ImageIO.read(getClass().getResource("../imagenes/texturaTierra.jpg"));
             robotImage = ImageIO.read(getClass().getResource("../imagenes/roomba.png"));
             paredImage = ImageIO.read(getClass().getResource("../imagenes/ladrillo.jpg"));
 
@@ -249,7 +249,7 @@ public class PanelCentral extends JPanel {
     @Override
     public void paint(Graphics gr) {
 
-        AlphaComposite opacidad = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f);
+        AlphaComposite opacidad = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f);
         AlphaComposite opacidad2 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
 
         int anchoCelda = getWidth() / dat.getDimension();
